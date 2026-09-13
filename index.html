@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TeVeFLIPE | Tu Plataforma de Streaming en Android TV y Fire TV</title>
+  <meta name="description" content="Convierte tu televisor en tu propio cine privado con TeVeFLIPE. Streaming nativo de películas y series sin anuncios ni límites en Android TV y Fire TV.">
+  <link rel="icon" type="image/png" href="assets/icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0a0a12;
+      --bg-card: #131322;
+      --bg-card-hover: #1a1a2e;
+      --purple-primary: #7c4dff;
+      --purple-glow: rgba(124, 77, 255, 0.4);
+      --cyan-accent: #00e5ff;
+      --cyan-glow: rgba(0, 229, 255, 0.35);
+      --text-white: #ffffff;
+      --text-muted: #a0a0b8;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-title: 'Outfit', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-white);
+      font-family: var(--font-body);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Ambient background lights */
+    .glow-bg {
+      position: fixed;
+      top: -20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(124, 77, 255, 0.22) 0%, rgba(0, 229, 255, 0.08) 45%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(80px);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    header {
+      padding: 24px 0;
+      border-bottom: 1px solid var(--border-color);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 10, 18, 0.75);
+    }
+
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: white;
+    }
+
+    .brand img {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px var(--purple-glow);
+    }
+
+    .brand-name {
+      font-family: var(--font-title);
+      font-weight: 800;
+      font-size: 1.45rem;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, #ffffff 40%, var(--cyan-accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--cyan-accent);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      border: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--purple-primary) 0%, #9c27b0 100%);
+      color: white;
+      box-shadow: 0 4px 20px var(--purple-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(124, 77, 255, 0.6);
+    }
+
+    .btn-whatsapp {
+      background: #25d366;
+      color: #0b2512;
+      box-shadow: 0 4px 20px rgba(37, 211, 102, 0.35);
+      font-weight: 800;
+    }
+
+    .btn-whatsapp:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(37, 211, 102, 0.55);
+      background: #20bd5a;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.14);
+      transform: translateY(-2px);
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 70px 0 60px;
+      text-align: center;
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 18px;
+      background: rgba(124, 77, 255, 0.12);
+      border: 1px solid rgba(124, 77, 255, 0.4);
+      border-radius: 50px;
+      color: var(--cyan-accent);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      background: #00e5ff;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #00e5ff;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+
+    .hero-title {
+      font-family: var(--font-title);
+      font-size: 3.4rem;
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 20px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-title span {
+      background: linear-gradient(135deg, #00e5ff 0%, #a855f7 70%, #ec4899 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      max-width: 720px;
+      margin: 0 auto 36px;
+      font-weight: 500;
+    }
+
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 50px;
+    }
+
+    /* TV Mockup */
+    .tv-mockup-wrapper {
+      position: relative;
+      max-width: 1020px;
+      margin: 0 auto;
+    }
+
+    .tv-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      height: 70%;
+      background: radial-gradient(ellipse, rgba(124, 77, 255, 0.4) 0%, rgba(0, 229, 255, 0.25) 50%, transparent 75%);
+      filter: blur(60px);
+      z-index: -1;
+    }
+
+    .tv-frame {
+      background: #020205;
+      padding: 12px 12px 16px;
+      border-radius: 20px;
+      border: 3px solid #232338;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
+      position: relative;
+    }
+
+    .tv-frame img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .tv-chin {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding-top: 10px;
+    }
+
+    .tv-logo {
+      font-family: var(--font-title);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #6c6c8c;
+      letter-spacing: 2px;
+    }
+
+    .tv-stand {
+      width: 200px;
+      height: 12px;
+      background: linear-gradient(180deg, #1b1b2a 0%, #0c0c14 100%);
+      margin: 0 auto;
+      border-radius: 0 0 6px 6px;
+      border: 1px solid #252538;
+      border-top: none;
+    }
+
+    /* Compatible devices bar */
+    .devices-bar {
+      margin-top: 40px;
+      padding: 20px;
+      background: rgba(19, 19, 34, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .device-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .device-icon {
+      font-size: 1.4rem;
+    }
+
+    /* Features Grid */
+    .section-header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .section-title {
+      font-family: var(--font-title);
+      font-size: 2.3rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .section-subtitle {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 80px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 30px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--purple-primary), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .feature-card:hover {
+      background: var(--bg-card-hover);
+      transform: translateY(-4px);
+      border-color: rgba(124, 77, 255, 0.4);
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-icon-box {
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      background: rgba(124, 77, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.7rem;
+      margin-bottom: 20px;
+      border: 1px solid rgba(124, 77, 255, 0.3);
+    }
+
+    .feature-title {
+      font-family: var(--font-title);
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .feature-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.55;
+    }
+
+    /* Showcase preview section */
+    .showcase {
+      margin: 90px 0;
+      background: linear-gradient(180deg, rgba(19, 19, 34, 0.8) 0%, rgba(10, 10, 18, 0.9) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 50px 40px;
+    }
+
+    .showcase-content {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 50px;
+      align-items: center;
+    }
+
+    .showcase-text h3 {
+      font-family: var(--font-title);
+      font-size: 2.1rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+
+    .showcase-text p {
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      font-size: 1rem;
+    }
+
+    .showcase-list {
+      list-style: none;
+      margin-bottom: 30px;
+    }
+
+    .showcase-list li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-white);
+      margin-bottom: 14px;
+      font-weight: 600;
+      font-size: 0.98rem;
+    }
+
+    .showcase-list li span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      background: rgba(0, 229, 255, 0.15);
+      border-radius: 50%;
+      color: var(--cyan-accent);
+      font-size: 0.85rem;
+    }
+
+    .showcase-img img {
+      width: 100%;
+      border-radius: 16px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Pricing Section */
+    .pricing-section {
+      padding: 60px 0 100px;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .pricing-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 40px 32px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.3s ease;
+    }
+
+    .pricing-card.featured {
+      background: linear-gradient(180deg, #18152e 0%, #121024 100%);
+      border: 2px solid var(--purple-primary);
+      box-shadow: 0 15px 45px rgba(124, 77, 255, 0.25);
+      transform: scale(1.03);
+    }
+
+    .card-ribbon {
+      position: absolute;
+      top: -14px;
+      right: 32px;
+      background: linear-gradient(135deg, var(--cyan-accent), #7c4dff);
+      color: #0b111e;
+      font-weight: 800;
+      font-size: 0.75rem;
+      padding: 4px 14px;
+      border-radius: 50px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      box-shadow: 0 4px 12px var(--cyan-glow);
+    }
+
+    .pricing-plan {
+      font-family: var(--font-title);
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .pricing-plan-desc {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+      min-height: 40px;
+    }
+
+    .pricing-price {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 26px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .currency {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-white);
+    }
+
+    .amount {
+      font-family: var(--font-title);
+      font-size: 3.4rem;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--text-white);
+    }
+
+    .period {
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .pricing-features {
+      list-style: none;
+      margin-bottom: 34px;
+      flex-grow: 1;
+    }
+
+    .pricing-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 14px;
+      font-size: 0.95rem;
+      color: #dedee8;
+    }
+
+    .pricing-features li svg {
+      flex-shrink: 0;
+      margin-top: 3px;
+      color: #00e5ff;
+    }
+
+    .pricing-note {
+      text-align: center;
+      margin-top: 14px;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    /* Steps Section */
+    .steps-section {
+      padding: 60px 0 80px;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+    }
+
+    .step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 30px;
+      text-align: center;
+      position: relative;
+    }
+
+    .step-num {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--purple-primary), var(--cyan-accent));
+      color: #0c0c16;
+      font-weight: 800;
+      font-family: var(--font-title);
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+
+    .step-title {
+      font-family: var(--font-title);
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .step-desc {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* FAQ Section */
+    .faq-section {
+      padding: 60px 0 100px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .faq-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 22px 26px;
+      margin-bottom: 14px;
+    }
+
+    .faq-q {
+      font-family: var(--font-title);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .faq-a {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.55;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding: 40px 0;
+      text-align: center;
+      background: #08080f;
+    }
+
+    .footer-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .footer-copy {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .hero-title {
+        font-size: 2.5rem;
+      }
+      .showcase-content {
+        grid-template-columns: 1fr;
+      }
+      .pricing-card.featured {
+        transform: none;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .hero-title {
+        font-size: 2.1rem;
+      }
+      .hero-subtitle {
+        font-size: 1.05rem;
+      }
+      .nav-links {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glow-bg"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="container nav-bar">
+      <a href="#" class="brand">
+        <img src="assets/icon.png" alt="TeVeFLIPE Logo">
+        <span class="brand-name">TeVeFLIPE</span>
+      </a>
+      <div class="nav-links">
+        <a href="#caracteristicas">Características</a>
+        <a href="#planes">Planes</a>
+        <a href="#como-funciona">Cómo Funciona</a>
+        <a href="#faq">Preguntas</a>
+      </div>
+      <a href="#planes" class="btn btn-primary">Adquirir Ahora</a>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="badge-pill">
+        <span class="badge-dot"></span>
+        Nueva Versión 1.2.0 • Android TV & Fire TV
+      </div>
+      <h1 class="hero-title">
+        Convierte tu Televisor en tu Propio <span>Cine Privado</span>
+      </h1>
+      <p class="hero-subtitle">
+        La plataforma de streaming definitiva para Android TV, TV Box y Proyectores. Reproduce series y películas desde tus canales con calidad Full HD, cero publicidad y navegación fluida con mando a distancia.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#planes" class="btn btn-primary" style="padding: 14px 32px; font-size: 1.05rem;">
+          ⭐ Ver Planes y Precios
+        </a>
+        <a href="https://wa.me/?text=%C2%A1Hola!%20Me%20interesa%20contratar%20TeVeFLIPE%20para%20mi%20televisor." target="_blank" class="btn btn-whatsapp" style="padding: 14px 28px; font-size: 1.05rem;">
+          💬 Hablar por WhatsApp
+        </a>
+      </div>
+
+      <!-- TV Mockup with real screenshot -->
+      <div class="tv-mockup-wrapper">
+        <div class="tv-glow"></div>
+        <div class="tv-frame">
+          <img src="assets/hero_tv.png" alt="TeVeFLIPE Pantalla en Android TV">
+          <div class="tv-chin">
+            <span class="tv-logo">TEVEFLIPE SMART CINEMA</span>
+          </div>
+        </div>
+        <div class="tv-stand"></div>
+      </div>
+
+      <!-- Devices Bar -->
+      <div class="devices-bar">
+        <div class="device-item">
+          <span class="device-icon">📺</span>
+          <span>Xiaomi TV Box & Stick</span>
+        </div>
+        <div class="device-item">
+          <span class="device-icon">🔥</span>
+          <span>Amazon Fire TV Stick</span>
+        </div>
+        <div class="device-item">
+          <span class="device-icon">📱</span>
+          <span>Google TV & Chromecast</span>
+        </div>
+        <div class="device-item">
+          <span class="device-icon">🎬</span>
+          <span>Smart TVs (Android TV)</span>
+        </div>
+        <div class="device-item">
+          <span class="device-icon">📽️</span>
+          <span>Proyectores Inteligentes</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="caracteristicas" class="container" style="padding: 60px 0;">
+    <div class="section-header">
+      <h2 class="section-title">¿Por qué elegir TeVeFLIPE?</h2>
+      <p class="section-subtitle">Diseñada desde cero para ofrecer la experiencia premium que Netflix o Max tienen, pero con la libertad de tu propio contenido.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon-box">⚡</div>
+        <h3 class="feature-title">Streaming Ultrarrápido</h3>
+        <p class="feature-desc">Reproducción directa sin esperas molestas ni cortes. Utiliza la potente red global de servidores con calidad hasta 1080p y 4K nativo.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-box">🎮</div>
+        <h3 class="feature-title">100% Control Remoto</h3>
+        <p class="feature-desc">Olvídate de ratones virtuales o punteros incómodos. Cada menú, tarjeta y botón responde inmediatamente al D-Pad de tu mando.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-box">🍿</div>
+        <h3 class="feature-title">Continuar Viendo Inteligente</h3>
+        <p class="feature-desc">¿Te quedaste a mitad de película? La app recuerda exactamente el minuto y segundo donde lo dejaste para reanudar con un solo clic.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-box">🔊</div>
+        <h3 class="feature-title">Audio y Subtítulos Dinámicos</h3>
+        <p class="feature-desc">Cambia al vuelo entre pistas de audio en castellano, latino o versión original, así como subtítulos completos integrados.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-box">🔄</div>
+        <h3 class="feature-title">Actualizaciones Automáticas</h3>
+        <p class="feature-desc">Sistema propio de actualizaciones en segundo plano. Cuando publiquemos mejoras, tu televisor te avisará y se actualizará con un clic.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-box">🚫</div>
+        <h3 class="feature-title">Cero Publicidad ni Spam</h3>
+        <p class="feature-desc">Sin anuncios emergentes, ventanas invasivas ni enlaces fraudulentos. Entras directo a ver lo que quieres sin interrupciones.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Showcase / Specs -->
+  <div class="container">
+    <div class="showcase">
+      <div class="showcase-content">
+        <div class="showcase-text">
+          <h3>Un Menú de Ajustes que cuida tu Televisor</h3>
+          <p>Supervisa el rendimiento de tu TV Box en tiempo real sin salir de la app.</p>
+          <ul class="showcase-list">
+            <li>
+              <span>✓</span>
+              <span>Comprobador de actualizaciones en 1 clic</span>
+            </li>
+            <li>
+              <span>✓</span>
+              <span>Detección automática del modelo y versión de Android</span>
+            </li>
+            <li>
+              <span>✓</span>
+              <span>Gestión y purga de caché para no llenar la memoria de tu TV</span>
+            </li>
+            <li>
+              <span>✓</span>
+              <span>Motor ExoPlayer y compatibilidad externa con VLC</span>
+            </li>
+          </ul>
+          <a href="#planes" class="btn btn-secondary">Comenzar Ahora →</a>
+        </div>
+        <div class="showcase-img">
+          <img src="assets/settings_tv.png" alt="Ajustes de TeVeFLIPE en Android TV">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pricing Section -->
+  <section id="planes" class="pricing-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Elige el Plan que Mejor se Adapte a Ti</h2>
+        <p class="section-subtitle">Precios justos, sin letras pequeñas ni contratos forzosos. Tú decides cómo disfrutar.</p>
+      </div>
+
+      <div class="pricing-grid">
+        
+        <!-- Plan 1: App a Pelo -->
+        <div class="pricing-card">
+          <div>
+            <h3 class="pricing-plan">Plan Básico</h3>
+            <p class="pricing-plan-desc">Para quienes ya tienen sus propios canales de Telegram y quieren la mejor app en su TV.</p>
+            
+            <div class="pricing-price">
+              <span class="currency">$</span>
+              <span class="amount">100</span>
+              <span class="period">MXN / pago único</span>
+            </div>
+
+            <ul class="pricing-features">
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span><strong>App TeVeFLIPE</strong> para tu TV</span>
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Conecta tu cuenta de Telegram</span>
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Reproductor nativo sin publicidad</span>
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Actualizaciones automáticas de por vida</span>
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Soporte de instalación paso a paso</span>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <a href="https://wa.me/?text=%C2%A1Hola!%20Quiero%20comprar%20el%20Plan%20B%C3%A1sico%20de%20TeVeFLIPE%20($100%20MXN%20pago%20%C3%BAnico)." target="_blank" class="btn btn-secondary" style="width: 100%;">
+              Comprar Plan Básico ($100 MXN)
+            </a>
+            <p class="pricing-note">Licencia permanente para 1 dispositivo</p>
+          </div>
+        </div>
+
+        <!-- Plan 2: VIP con Contenido -->
+        <div class="pricing-card featured">
+          <div class="card-ribbon">⭐ MÁS POPULAR</div>
+          <div>
+            <h3 class="pricing-plan">Plan VIP Total</h3>
+            <p class="pricing-plan-desc">App completa + Acceso inmediato a nuestros grupos cerrados de películas y series.</p>
+            
+            <div class="pricing-price">
+              <span class="currency">$</span>
+              <span class="amount">40</span>
+              <span class="period">MXN / mes</span>
+            </div>
+
+            <ul class="pricing-features">
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span><strong>Todo lo del Plan Básico</strong> incluido</span>
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span><strong>+7,500 capítulos</strong> de series organizadas</span>
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span><strong>Repositorio de Películas</strong> en 1080p</span>
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Sincronización diaria con nuevos contenidos</span>
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Audio en Español y sin cortes</span>
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Soporte VIP prioritario</span>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <a href="https://wa.me/?text=%C2%A1Hola!%20Quiero%20contratar%20el%20Plan%20VIP%20de%20TeVeFLIPE%20($40%20MXN/mes%20o%20promo%20trimestral)." target="_blank" class="btn btn-whatsapp" style="width: 100%;">
+              Contratar Plan VIP ($40 MXN)
+            </a>
+            <p class="pricing-note">🔥 <strong>Promoción Trimestral:</strong> 3 meses por solo $100 MXN</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section id="como-funciona" class="steps-section container">
+    <div class="section-header">
+      <h2 class="section-title">Comienza en Solo 3 Pasos</h2>
+      <p class="section-subtitle">Instalación rápida en menos de 2 minutos sin configuraciones difíciles.</p>
+    </div>
+
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h3 class="step-title">Elige tu Plan</h3>
+        <p class="step-desc">Escríbenos por WhatsApp para confirmar tu plan (Básico o VIP) y realizar tu pago de forma segura.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h3 class="step-title">Instala en tu Tele</h3>
+        <p class="step-desc">Te enviamos el código o enlace directo para descargar en la app Downloader de tu Smart TV o Fire TV Stick.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h3 class="step-title">¡Disfruta!</h3>
+        <p class="step-desc">Abre TeVeFLIPE con tu mando a distancia, busca tu serie o película favorita y dale al Play.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq" class="faq-section container">
+    <div class="section-header">
+      <h2 class="section-title">Preguntas Frecuentes</h2>
+    </div>
+
+    <div class="faq-item">
+      <h4 class="faq-q">¿En qué dispositivos puedo usar TeVeFLIPE?</h4>
+      <p class="faq-a">Es compatible con cualquier televisor o dispositivo con Android TV o Google TV (Xiaomi Mi Box, Chromecast, Smart TVs Sony, TCL, Hisense, etc.), Amazon Fire TV Stick y Proyectores Android.</p>
+    </div>
+
+    <div class="faq-item">
+      <h4 class="faq-q">¿Qué métodos de pago aceptan?</h4>
+      <p class="faq-a">Aceptamos transferencias bancarias directas (SPEI), depósitos en OXXO, Mercado Pago y PayPal.</p>
+    </div>
+
+    <div class="faq-item">
+      <h4 class="faq-q">¿Cómo se actualiza la aplicación?</h4>
+      <p class="faq-a">La aplicación cuenta con actualizador automático integrado. Cuando haya una nueva versión disponible, te saldrá un aviso en pantalla y se actualizará sola sin que tengas que volver a descargar nada manualmente.</p>
+    </div>
+
+    <div class="faq-item">
+      <h4 class="faq-q">¿Qué pasa si necesito ayuda para instalarla?</h4>
+      <p class="faq-a">Te asesoramos paso a paso por WhatsApp o Telegram hasta que quede funcionando en tu pantalla sin ningún costo extra.</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container footer-content">
+      <div class="brand">
+        <img src="assets/icon.png" alt="TeVeFLIPE">
+        <span class="brand-name">TeVeFLIPE</span>
+      </div>
+      <p class="footer-copy">© 2026 TeVeFLIPE. Todos los derechos reservados. Diseñado para Android TV, Fire TV y Proyectores.</p>
+    </div>
+  </footer>
+
+</body>
+</html>
