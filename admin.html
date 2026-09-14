@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TeVeFLIPE | Panel de Administración y Telemetría</title>
+  <title>TeVeFLIPE | Panel de Administración y Clientes</title>
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,7 +39,7 @@
     }
 
     .container {
-      max-width: 1280px;
+      max-width: 1320px;
       margin: 0 auto;
       padding: 0 24px;
     }
@@ -110,12 +110,18 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.15);
     }
 
     .metric-label {
       color: var(--text-muted);
-      font-size: 0.88rem;
-      font-weight: 600;
+      font-size: 0.82rem;
+      font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
@@ -127,17 +133,23 @@
       color: var(--cyan-accent);
     }
 
-    .search-bar-wrap {
+    .search-filter-wrap {
       display: flex;
+      flex-direction: column;
       gap: 16px;
       margin-bottom: 24px;
+    }
+
+    .search-bar-row {
+      display: flex;
+      gap: 16px;
       align-items: center;
       flex-wrap: wrap;
     }
 
     .search-input {
       flex: 1;
-      min-width: 260px;
+      min-width: 280px;
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: 12px;
@@ -153,6 +165,37 @@
       box-shadow: 0 0 10px var(--cyan-glow);
     }
 
+    .filter-pills {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 7px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .filter-btn.active {
+      background: rgba(124, 77, 255, 0.25);
+      border-color: var(--purple-primary);
+      color: white;
+      box-shadow: 0 0 12px var(--purple-glow);
+    }
+
     .btn-refresh {
       background: linear-gradient(135deg, var(--purple-primary), #6d28d9);
       color: white;
@@ -160,7 +203,7 @@
       border-radius: 12px;
       padding: 12px 20px;
       font-weight: 700;
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -193,7 +236,7 @@
       font-weight: 700;
       border-bottom: 1px solid var(--border-color);
       text-transform: uppercase;
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       letter-spacing: 0.5px;
     }
 
@@ -233,42 +276,70 @@
       font-family: monospace;
     }
 
-    .channels-tag {
-      background: rgba(124, 77, 255, 0.15);
-      border: 1px solid rgba(124, 77, 255, 0.35);
-      color: #c4b5fd;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      display: inline-block;
-      margin: 2px;
-    }
-
-    .badge-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      font-weight: 700;
-    }
-
-    .status-vip {
-      background: rgba(0, 229, 255, 0.12);
-      color: var(--cyan-accent);
-      border: 1px solid rgba(0, 229, 255, 0.4);
-    }
-
-    .status-basic {
-      background: rgba(255, 255, 255, 0.08);
-      color: #ddd;
-    }
-
     .date-text {
       color: var(--text-muted);
       font-size: 0.82rem;
+    }
+
+    /* Selectores de Plan y Estado */
+    .role-select {
+      background: #18182b;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: white;
+      padding: 7px 12px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      outline: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .role-select:focus {
+      border-color: var(--cyan-accent);
+    }
+
+    .role-select.role-vip {
+      background: rgba(0, 229, 255, 0.12);
+      border-color: rgba(0, 229, 255, 0.4);
+      color: var(--cyan-accent);
+    }
+
+    .role-select.role-demo {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(245, 158, 11, 0.4);
+      color: #fbbf24;
+    }
+
+    .role-select.role-cliente {
+      background: rgba(34, 197, 94, 0.12);
+      border-color: rgba(34, 197, 94, 0.4);
+      color: #4ade80;
+    }
+
+    .status-select {
+      background: #18182b;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: white;
+      padding: 7px 12px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      outline: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .status-select.status-activo {
+      background: rgba(34, 197, 94, 0.12);
+      border-color: rgba(34, 197, 94, 0.4);
+      color: #4ade80;
+    }
+
+    .status-select.status-expirado {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #f87171;
     }
 
     .empty-state {
@@ -279,8 +350,8 @@
 
     .loading-spinner {
       display: inline-block;
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       border: 3px solid rgba(255, 255, 255, 0.2);
       border-radius: 50%;
       border-top-color: var(--cyan-accent);
@@ -289,6 +360,45 @@
 
     @keyframes spin {
       to { transform: rotate(360deg); }
+    }
+
+    /* Notificación flotante Toast */
+    #toastContainer {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: #1c1c32;
+      border: 1px solid var(--purple-primary);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      animation: slideIn 0.3s ease forwards;
+    }
+
+    .toast.success {
+      border-color: #22c55e;
+    }
+
+    .toast.error {
+      border-color: #ef4444;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
     }
   </style>
 </head>
@@ -301,7 +411,7 @@
         <span class="brand-name">TeVeFLIPE</span>
       </a>
       <div style="display: flex; align-items: center; gap: 14px;">
-        <span class="badge-admin">🔒 Telemetría Firebase</span>
+        <span class="badge-admin">🔒 Panel de Control</span>
         <a href="index.html" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 600;">← Volver al Portal</a>
       </div>
     </div>
@@ -310,28 +420,39 @@
   <main class="container">
     <div class="metrics-grid">
       <div class="metric-card">
-        <span class="metric-label">Usuarios Conectados</span>
+        <span class="metric-label">Usuarios Totales</span>
         <span class="metric-val" id="totalUsers">-</span>
       </div>
       <div class="metric-card">
-        <span class="metric-label">Dispositivos Únicos</span>
-        <span class="metric-val" id="totalDevices">-</span>
+        <span class="metric-label">🟡 Testers / Demo</span>
+        <span class="metric-val" style="color: #fbbf24;" id="totalDemo">-</span>
       </div>
       <div class="metric-card">
-        <span class="metric-label">Versión de App Actual</span>
-        <span class="metric-val" style="color: #a855f7;">v1.2.6</span>
+        <span class="metric-label">⭐ Clientes VIP</span>
+        <span class="metric-val" style="color: var(--cyan-accent);" id="totalVip">-</span>
       </div>
       <div class="metric-card">
-        <span class="metric-label">Estado de Sincronización</span>
-        <span class="metric-val" style="color: #00e676; font-size: 1.5rem;" id="syncStatus">Activo</span>
+        <span class="metric-label">⛔ Expirados / Bloqueados</span>
+        <span class="metric-val" style="color: #f87171;" id="totalExpired">-</span>
       </div>
     </div>
 
-    <div class="search-bar-wrap">
-      <input type="text" id="searchInput" class="search-input" placeholder="🔍 Buscar por nombre, @username, ID de Telegram o dispositivo...">
-      <button class="btn-refresh" onclick="fetchUsers()">
-        <span id="refreshIcon">🔄</span> Actualizar Datos
-      </button>
+    <div class="search-filter-wrap">
+      <div class="search-bar-row">
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Buscar por nombre, @username, ID de Telegram o dispositivo...">
+        <button class="btn-refresh" onclick="fetchUsers()">
+          <span id="refreshIcon">🔄</span> Actualizar Datos
+        </button>
+      </div>
+
+      <div class="filter-pills">
+        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700;">Filtrar por:</span>
+        <button class="filter-btn active" onclick="setFilter('todos', this)">Todos</button>
+        <button class="filter-btn" onclick="setFilter('demo', this)">🟡 Solo Testers (Demo)</button>
+        <button class="filter-btn" onclick="setFilter('cliente', this)">🟢 Solo Clientes</button>
+        <button class="filter-btn" onclick="setFilter('vip', this)">⭐ Solo VIPs</button>
+        <button class="filter-btn" onclick="setFilter('expirado', this)">⛔ Expirados / Inactivos</button>
+      </div>
     </div>
 
     <div class="table-container">
@@ -342,9 +463,9 @@
             <th>ID Telegram</th>
             <th>Dispositivo</th>
             <th>Versión App</th>
-            <th>Canales Sincronizados</th>
             <th>Último Acceso</th>
-            <th>Acceso VIP</th>
+            <th>Plan / Rol Asignado</th>
+            <th>Estado de Cuenta</th>
           </tr>
         </thead>
         <tbody id="usersTableBody">
@@ -359,21 +480,33 @@
     </div>
   </main>
 
+  <div id="toastContainer"></div>
+
   <script>
-    const FIREBASE_RTDB_URL = "https://teveflipe-default-rtdb.firebaseio.com/users.json";
+    const FIREBASE_BASE_URL = "https://teveflipe-default-rtdb.firebaseio.com/users";
     let allUsers = [];
+    let currentFilter = 'todos';
 
     async function fetchUsers() {
       const icon = document.getElementById("refreshIcon");
       if (icon) icon.style.animation = "spin 1s infinite linear";
 
       try {
-        const response = await fetch(FIREBASE_RTDB_URL);
+        const response = await fetch(`${FIREBASE_BASE_URL}.json`);
         if (!response.ok) throw new Error("HTTP error " + response.status);
         const data = await response.json();
 
         if (data) {
-          allUsers = Object.values(data);
+          allUsers = Object.keys(data).map(key => {
+            const user = data[key];
+            // Asegurar ID de Telegram
+            user.telegram_id = user.telegram_id || key;
+            // Normalizar rol y estado por defecto
+            user.rol = user.rol || (user.es_vip ? "vip" : "demo");
+            user.estado = user.estado || "activo";
+            return user;
+          });
+
           // Ordenar por último acceso descendente
           allUsers.sort((a, b) => (b.ultimo_acceso_ms || 0) - (a.ultimo_acceso_ms || 0));
         } else {
@@ -381,22 +514,17 @@
         }
 
         updateMetrics();
-        renderTable(allUsers);
-        document.getElementById("syncStatus").textContent = "En Vivo";
-        document.getElementById("syncStatus").style.color = "#00e676";
+        applyFiltersAndRender();
       } catch (err) {
         console.error("Error consultando Firebase RTDB:", err);
         document.getElementById("usersTableBody").innerHTML = `
           <tr>
             <td colspan="7" class="empty-state" style="color: #ff5252;">
               ⚠️ No se pudo conectar a Firebase Realtime Database.<br>
-              Verifica que las reglas de lectura estén habilitadas en modo de prueba.<br>
               <small style="color: var(--text-muted);">${err.message}</small>
             </td>
           </tr>
         `;
-        document.getElementById("syncStatus").textContent = "Error";
-        document.getElementById("syncStatus").style.color = "#ff5252";
       } finally {
         if (icon) icon.style.animation = "none";
       }
@@ -404,8 +532,49 @@
 
     function updateMetrics() {
       document.getElementById("totalUsers").textContent = allUsers.length;
-      const deviceSet = new Set(allUsers.map(u => u.device_id || u.device_model).filter(Boolean));
-      document.getElementById("totalDevices").textContent = deviceSet.size;
+      
+      const demoCount = allUsers.filter(u => (u.rol || '').toLowerCase() === 'demo').length;
+      const vipCount = allUsers.filter(u => ['vip', 'cliente'].includes((u.rol || '').toLowerCase())).length;
+      const expiredCount = allUsers.filter(u => ['expirado', 'bloqueado'].includes((u.estado || '').toLowerCase())).length;
+
+      document.getElementById("totalDemo").textContent = demoCount;
+      document.getElementById("totalVip").textContent = vipCount;
+      document.getElementById("totalExpired").textContent = expiredCount;
+    }
+
+    function setFilter(filter, btn) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      applyFiltersAndRender();
+    }
+
+    function applyFiltersAndRender() {
+      const q = document.getElementById("searchInput").value.toLowerCase().trim();
+
+      let filtered = allUsers.filter(u => {
+        const matchesQuery = !q || (
+          (u.first_name && u.first_name.toLowerCase().includes(q)) ||
+          (u.username && u.username.toLowerCase().includes(q)) ||
+          (u.device_model && u.device_model.toLowerCase().includes(q)) ||
+          (u.device_id && u.device_id.toLowerCase().includes(q)) ||
+          (String(u.telegram_id).includes(q))
+        );
+
+        if (!matchesQuery) return false;
+
+        const rol = (u.rol || '').toLowerCase();
+        const estado = (u.estado || '').toLowerCase();
+
+        if (currentFilter === 'demo') return rol === 'demo';
+        if (currentFilter === 'cliente') return rol === 'cliente';
+        if (currentFilter === 'vip') return rol === 'vip';
+        if (currentFilter === 'expirado') return ['expirado', 'bloqueado'].includes(estado);
+
+        return true;
+      });
+
+      renderTable(filtered);
     }
 
     function renderTable(users) {
@@ -414,7 +583,7 @@
         tbody.innerHTML = `
           <tr>
             <td colspan="7" class="empty-state">
-              No se han registrado sesiones aún. Al abrir la app en la TV aparecerán aquí automáticamente.
+              No se encontraron usuarios para el filtro seleccionado.
             </td>
           </tr>
         `;
@@ -423,15 +592,14 @@
 
       tbody.innerHTML = users.map(user => {
         const username = user.username && user.username !== "Sin @username" ? "@" + user.username.replace("@", "") : "Sin alias";
-        const channels = Array.isArray(user.canales_seleccionados) ? user.canales_seleccionados : [];
-        const channelsHtml = channels.length > 0 
-          ? channels.slice(0, 3).map(ch => `<span class="channels-tag">${escapeHtml(ch)}</span>`).join("") + (channels.length > 3 ? ` <span style="font-size: 0.78rem; color: var(--text-muted);">+${channels.length - 3} más</span>` : "")
-          : `<span style="color: var(--text-muted); font-size: 0.8rem;">Ninguno</span>`;
+        const rol = (user.rol || "demo").toLowerCase();
+        const estado = (user.estado || "activo").toLowerCase();
 
-        const isVip = user.es_vip === true;
+        const roleClass = rol === 'vip' ? 'role-vip' : (rol === 'cliente' ? 'role-cliente' : 'role-demo');
+        const statusClass = estado === 'activo' ? 'status-activo' : 'status-expirado';
 
         return `
-          <tr>
+          <tr id="row-${user.telegram_id}">
             <td>
               <div class="user-pill">
                 <span class="user-name">${escapeHtml(user.first_name || "Usuario")}</span>
@@ -439,29 +607,104 @@
               </div>
             </td>
             <td style="font-family: monospace; color: #c4b5fd; font-weight: 600;">
-              ${user.telegram_id || "-"}
+              ${user.telegram_id}
             </td>
             <td>
               <div class="device-pill">${escapeHtml(user.device_model || "Android TV")}</div>
               <div class="device-id">${escapeHtml(user.device_id || "")} • ${escapeHtml(user.android_version || "")}</div>
             </td>
             <td>
-              <span style="font-weight: 700; color: #a855f7;">v${escapeHtml(user.app_version || "1.2.4")}</span>
-            </td>
-            <td>
-              ${channelsHtml}
+              <span style="font-weight: 700; color: #a855f7;">v${escapeHtml(user.app_version || "1.2.6")}</span>
             </td>
             <td>
               <div class="date-text">${escapeHtml(user.ultimo_acceso_fecha || "Reciente")}</div>
             </td>
             <td>
-              <span class="badge-status ${isVip ? 'status-vip' : 'status-basic'}">
-                ${isVip ? '⭐ VIP' : 'Estándar'}
-              </span>
+              <select class="role-select ${roleClass}" onchange="onRoleChange('${user.telegram_id}', this.value, this)">
+                <option value="demo" ${rol === 'demo' ? 'selected' : ''}>🟡 Tester (Demo)</option>
+                <option value="cliente" ${rol === 'cliente' ? 'selected' : ''}>🟢 Cliente</option>
+                <option value="vip" ${rol === 'vip' ? 'selected' : ''}>⭐ VIP / Premium</option>
+              </select>
+            </td>
+            <td>
+              <select class="status-select ${statusClass}" onchange="onStatusChange('${user.telegram_id}', this.value, this)">
+                <option value="activo" ${estado === 'activo' ? 'selected' : ''}>✅ Activo</option>
+                <option value="expirado" ${estado === 'expirado' || estado === 'bloqueado' ? 'selected' : ''}>⛔ Expirado / Bloqueado</option>
+              </select>
             </td>
           </tr>
         `;
       }).join("");
+    }
+
+    async function onRoleChange(telegramId, newRole, selectEl) {
+      selectEl.className = 'role-select ' + (newRole === 'vip' ? 'role-vip' : (newRole === 'cliente' ? 'role-cliente' : 'role-demo'));
+
+      // Actualizar en el modelo local
+      const u = allUsers.find(x => String(x.telegram_id) === String(telegramId));
+      if (u) {
+        u.rol = newRole;
+        u.es_vip = (newRole === 'vip');
+      }
+
+      updateMetrics();
+
+      try {
+        const res = await fetch(`${FIREBASE_BASE_URL}/${telegramId}.json`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            rol: newRole,
+            es_vip: (newRole === 'vip')
+          })
+        });
+
+        if (!res.ok) throw new Error("HTTP error " + res.status);
+        showToast(`Rol actualizado a [${newRole.toUpperCase()}] para ${u ? u.first_name : telegramId}`, "success");
+      } catch (err) {
+        console.error("Error guardando rol:", err);
+        showToast("Error al guardar en Firebase: " + err.message, "error");
+      }
+    }
+
+    async function onStatusChange(telegramId, newStatus, selectEl) {
+      selectEl.className = 'status-select ' + (newStatus === 'activo' ? 'status-activo' : 'status-expirado');
+
+      const u = allUsers.find(x => String(x.telegram_id) === String(telegramId));
+      if (u) {
+        u.estado = newStatus;
+      }
+
+      updateMetrics();
+
+      try {
+        const res = await fetch(`${FIREBASE_BASE_URL}/${telegramId}.json`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            estado: newStatus
+          })
+        });
+
+        if (!res.ok) throw new Error("HTTP error " + res.status);
+        showToast(`Estado cambiado a [${newStatus.toUpperCase()}]`, "success");
+      } catch (err) {
+        console.error("Error guardando estado:", err);
+        showToast("Error al guardar en Firebase: " + err.message, "error");
+      }
+    }
+
+    function showToast(msg, type = "success") {
+      const container = document.getElementById("toastContainer");
+      const el = document.createElement("div");
+      el.className = `toast ${type}`;
+      el.innerHTML = `<span>${type === 'success' ? '✅' : '⚠️'}</span> <span>${escapeHtml(msg)}</span>`;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transition = 'opacity 0.4s';
+        setTimeout(() => el.remove(), 400);
+      }, 3500);
     }
 
     function escapeHtml(str) {
@@ -471,24 +714,8 @@
       });
     }
 
-    // Filtrado en vivo
-    document.getElementById("searchInput").addEventListener("input", (e) => {
-      const q = e.target.value.toLowerCase().trim();
-      if (!q) {
-        renderTable(allUsers);
-        return;
-      }
-      const filtered = allUsers.filter(u => {
-        return (u.first_name && u.first_name.toLowerCase().includes(q)) ||
-               (u.username && u.username.toLowerCase().includes(q)) ||
-               (u.device_model && u.device_model.toLowerCase().includes(q)) ||
-               (u.device_id && u.device_id.toLowerCase().includes(q)) ||
-               (String(u.telegram_id).includes(q));
-      });
-      renderTable(filtered);
-    });
+    document.getElementById("searchInput").addEventListener("input", applyFiltersAndRender);
 
-    // Carga inicial y sondeo periódico cada 30 segundos
     fetchUsers();
     setInterval(fetchUsers, 30000);
   </script>
