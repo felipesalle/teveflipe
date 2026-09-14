@@ -305,6 +305,12 @@
       color: var(--cyan-accent);
     }
 
+    .role-select.role-app {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: rgba(59, 130, 246, 0.4);
+      color: #60a5fa;
+    }
+
     .role-select.role-demo {
       background: rgba(245, 158, 11, 0.12);
       border-color: rgba(245, 158, 11, 0.4);
@@ -315,6 +321,96 @@
       background: rgba(34, 197, 94, 0.12);
       border-color: rgba(34, 197, 94, 0.4);
       color: #4ade80;
+    }
+
+    /* Vencimiento y Botones Rápidos de Renovación */
+    .sub-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .sub-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      width: fit-content;
+      white-space: nowrap;
+    }
+
+    .sub-active {
+      background: rgba(34, 197, 94, 0.15);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .sub-warning {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .sub-expired {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .sub-app {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .sub-vip {
+      background: rgba(0, 229, 255, 0.15);
+      color: var(--cyan-accent);
+      border: 1px solid rgba(0, 229, 255, 0.3);
+    }
+
+    .sub-demo {
+      background: rgba(245, 158, 11, 0.12);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.25);
+    }
+
+    .sub-empty {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+    }
+
+    .quick-add-wrap {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .btn-renew {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e2ee;
+      padding: 3px 7px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-renew:hover {
+      background: var(--purple-primary);
+      border-color: var(--purple-primary);
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    .btn-renew-edit {
+      padding: 3px 5px;
     }
 
     .status-select {
@@ -428,7 +524,15 @@
         <span class="metric-val" style="color: #fbbf24;" id="totalDemo">-</span>
       </div>
       <div class="metric-card">
-        <span class="metric-label">⭐ Clientes VIP</span>
+        <span class="metric-label">🔵 Licencia App</span>
+        <span class="metric-val" style="color: #60a5fa;" id="totalApp">-</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">🟢 Suscriptores VIP</span>
+        <span class="metric-val" style="color: #4ade80;" id="totalCliente">-</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">⭐ VIP / Creador</span>
         <span class="metric-val" style="color: var(--cyan-accent);" id="totalVip">-</span>
       </div>
       <div class="metric-card">
@@ -449,6 +553,7 @@
         <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700;">Filtrar por:</span>
         <button class="filter-btn active" onclick="setFilter('todos', this)">Todos</button>
         <button class="filter-btn" onclick="setFilter('demo', this)">🟡 Solo Testers (Demo)</button>
+        <button class="filter-btn" onclick="setFilter('app', this)">🔵 Solo Licencia App</button>
         <button class="filter-btn" onclick="setFilter('cliente', this)">🟢 Solo Clientes</button>
         <button class="filter-btn" onclick="setFilter('vip', this)">⭐ Solo VIPs</button>
         <button class="filter-btn" onclick="setFilter('expirado', this)">⛔ Expirados / Inactivos</button>
@@ -465,12 +570,13 @@
             <th>Versión App</th>
             <th>Último Acceso</th>
             <th>Plan / Rol Asignado</th>
+            <th>Vencimiento / Suscripción</th>
             <th>Estado de Cuenta</th>
           </tr>
         </thead>
         <tbody id="usersTableBody">
           <tr>
-            <td colspan="7" class="empty-state">
+            <td colspan="8" class="empty-state">
               <div class="loading-spinner"></div>
               <p style="margin-top: 12px;">Cargando sesiones desde Firebase Realtime Database...</p>
             </td>
@@ -534,10 +640,14 @@
       document.getElementById("totalUsers").textContent = allUsers.length;
       
       const demoCount = allUsers.filter(u => (u.rol || '').toLowerCase() === 'demo').length;
-      const vipCount = allUsers.filter(u => ['vip', 'cliente'].includes((u.rol || '').toLowerCase())).length;
+      const appCount = allUsers.filter(u => ['app', 'personal', 'licencia_app'].includes((u.rol || '').toLowerCase())).length;
+      const clienteCount = allUsers.filter(u => (u.rol || '').toLowerCase() === 'cliente').length;
+      const vipCount = allUsers.filter(u => (u.rol || '').toLowerCase() === 'vip').length;
       const expiredCount = allUsers.filter(u => ['expirado', 'bloqueado'].includes((u.estado || '').toLowerCase())).length;
 
       document.getElementById("totalDemo").textContent = demoCount;
+      document.getElementById("totalApp").textContent = appCount;
+      document.getElementById("totalCliente").textContent = clienteCount;
       document.getElementById("totalVip").textContent = vipCount;
       document.getElementById("totalExpired").textContent = expiredCount;
     }
@@ -567,6 +677,7 @@
         const estado = (u.estado || '').toLowerCase();
 
         if (currentFilter === 'demo') return rol === 'demo';
+        if (currentFilter === 'app') return ['app', 'personal', 'licencia_app'].includes(rol);
         if (currentFilter === 'cliente') return rol === 'cliente';
         if (currentFilter === 'vip') return rol === 'vip';
         if (currentFilter === 'expirado') return ['expirado', 'bloqueado'].includes(estado);
@@ -577,12 +688,64 @@
       renderTable(filtered);
     }
 
+    function getSubscriptionHtml(user) {
+      const rol = (user.rol || "demo").toLowerCase();
+      if (rol === 'vip') {
+        return `<div class="sub-wrap"><span class="sub-badge sub-vip">⭐ Permanente (VIP)</span></div>`;
+      }
+      if (['app', 'personal', 'licencia_app'].includes(rol)) {
+        return `<div class="sub-wrap"><span class="sub-badge sub-app">♾️ Licencia Vitalicia</span></div>`;
+      }
+      if (rol === 'demo') {
+        return `<div class="sub-wrap"><span class="sub-badge sub-demo">🟡 Temporal (Demo)</span></div>`;
+      }
+
+      // Rol: cliente suscriptor
+      let badgeHtml = '';
+      let diffDays = null;
+      if (user.fecha_limite) {
+        try {
+          const parts = user.fecha_limite.split("-");
+          if (parts.length === 3) {
+            const target = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            diffDays = Math.round((target - today) / (1000 * 60 * 60 * 24));
+          }
+        } catch(e) {}
+      }
+
+      if (!user.fecha_limite) {
+        badgeHtml = `<span class="sub-badge sub-empty">Sin fecha límite</span>`;
+      } else if (diffDays !== null && diffDays < 0) {
+        badgeHtml = `<span class="sub-badge sub-expired">⛔ Vencido (${escapeHtml(user.fecha_limite)})</span>`;
+      } else if (diffDays === 0) {
+        badgeHtml = `<span class="sub-badge sub-warning">⚠️ Vence hoy (${escapeHtml(user.fecha_limite)})</span>`;
+      } else if (diffDays !== null) {
+        badgeHtml = `<span class="sub-badge sub-active">🟢 ${diffDays}d (${escapeHtml(user.fecha_limite)})</span>`;
+      } else {
+        badgeHtml = `<span class="sub-badge sub-empty">${escapeHtml(user.fecha_limite)}</span>`;
+      }
+
+      return `
+        <div class="sub-wrap">
+          ${badgeHtml}
+          <div class="quick-add-wrap">
+            <button class="btn-renew" onclick="addSubscriptionDays('${user.telegram_id}', 30)" title="Añadir 1 Mes (+30 días)">+30d</button>
+            <button class="btn-renew" onclick="addSubscriptionDays('${user.telegram_id}', 90)" title="Añadir 3 Meses (+90 días)">+90d</button>
+            <button class="btn-renew" onclick="addSubscriptionDays('${user.telegram_id}', 365)" title="Añadir Pase Anual (+365 días)">+1a</button>
+            <button class="btn-renew btn-renew-edit" onclick="setCustomDate('${user.telegram_id}', '${user.fecha_limite || ''}')" title="Modificar fecha manualmente">✏️</button>
+          </div>
+        </div>
+      `;
+    }
+
     function renderTable(users) {
       const tbody = document.getElementById("usersTableBody");
       if (users.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="7" class="empty-state">
+            <td colspan="8" class="empty-state">
               No se encontraron usuarios para el filtro seleccionado.
             </td>
           </tr>
@@ -595,8 +758,9 @@
         const rol = (user.rol || "demo").toLowerCase();
         const estado = (user.estado || "activo").toLowerCase();
 
-        const roleClass = rol === 'vip' ? 'role-vip' : (rol === 'cliente' ? 'role-cliente' : 'role-demo');
+        const roleClass = rol === 'vip' ? 'role-vip' : (rol === 'cliente' ? 'role-cliente' : (['app', 'personal', 'licencia_app'].includes(rol) ? 'role-app' : 'role-demo'));
         const statusClass = estado === 'activo' ? 'status-activo' : 'status-expirado';
+        const subHtml = getSubscriptionHtml(user);
 
         return `
           <tr id="row-${user.telegram_id}">
@@ -614,7 +778,7 @@
               <div class="device-id">${escapeHtml(user.device_id || "")} • ${escapeHtml(user.android_version || "")}</div>
             </td>
             <td>
-              <span style="font-weight: 700; color: #a855f7;">v${escapeHtml(user.app_version || "1.2.6")}</span>
+              <span style="font-weight: 700; color: #a855f7;">v${escapeHtml(user.app_version || "1.3.1")}</span>
             </td>
             <td>
               <div class="date-text">${escapeHtml(user.ultimo_acceso_fecha || "Reciente")}</div>
@@ -622,9 +786,13 @@
             <td>
               <select class="role-select ${roleClass}" onchange="onRoleChange('${user.telegram_id}', this.value, this)">
                 <option value="demo" ${rol === 'demo' ? 'selected' : ''}>🟡 Tester (Demo)</option>
-                <option value="cliente" ${rol === 'cliente' ? 'selected' : ''}>🟢 Cliente</option>
-                <option value="vip" ${rol === 'vip' ? 'selected' : ''}>⭐ VIP / Premium</option>
+                <option value="app" ${['app', 'personal', 'licencia_app'].includes(rol) ? 'selected' : ''}>🔵 Licencia App (Personal)</option>
+                <option value="cliente" ${rol === 'cliente' ? 'selected' : ''}>🟢 Cliente Suscriptor</option>
+                <option value="vip" ${rol === 'vip' ? 'selected' : ''}>⭐ VIP / Admin</option>
               </select>
+            </td>
+            <td>
+              ${subHtml}
             </td>
             <td>
               <select class="status-select ${statusClass}" onchange="onStatusChange('${user.telegram_id}', this.value, this)">
@@ -638,7 +806,7 @@
     }
 
     async function onRoleChange(telegramId, newRole, selectEl) {
-      selectEl.className = 'role-select ' + (newRole === 'vip' ? 'role-vip' : (newRole === 'cliente' ? 'role-cliente' : 'role-demo'));
+      selectEl.className = 'role-select ' + (newRole === 'vip' ? 'role-vip' : (newRole === 'cliente' ? 'role-cliente' : (newRole === 'app' ? 'role-app' : 'role-demo')));
 
       // Actualizar en el modelo local
       const u = allUsers.find(x => String(x.telegram_id) === String(telegramId));
@@ -648,6 +816,7 @@
       }
 
       updateMetrics();
+      applyFiltersAndRender();
 
       try {
         const res = await fetch(`${FIREBASE_BASE_URL}/${telegramId}.json`, {
@@ -663,6 +832,96 @@
         showToast(`Rol actualizado a [${newRole.toUpperCase()}] para ${u ? u.first_name : telegramId}`, "success");
       } catch (err) {
         console.error("Error guardando rol:", err);
+        showToast("Error al guardar en Firebase: " + err.message, "error");
+      }
+    }
+
+    async function addSubscriptionDays(telegramId, days) {
+      const u = allUsers.find(x => String(x.telegram_id) === String(telegramId));
+      if (!u) return;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      let baseDate = today;
+
+      if (u.fecha_limite) {
+        try {
+          const parts = u.fecha_limite.split("-");
+          if (parts.length === 3) {
+            const existing = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            if (existing > today) {
+              baseDate = existing;
+            }
+          }
+        } catch (e) {}
+      }
+
+      const newTarget = new Date(baseDate.getTime() + days * 24 * 60 * 60 * 1000);
+      const yyyy = newTarget.getFullYear();
+      const mm = String(newTarget.getMonth() + 1).padStart(2, '0');
+      const dd = String(newTarget.getDate()).padStart(2, '0');
+      const newDateStr = `${yyyy}-${mm}-${dd}`;
+
+      u.fecha_limite = newDateStr;
+      u.rol = 'cliente';
+      u.estado = 'activo';
+
+      updateMetrics();
+      applyFiltersAndRender();
+
+      try {
+        const res = await fetch(`${FIREBASE_BASE_URL}/${telegramId}.json`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fecha_limite: newDateStr,
+            rol: 'cliente',
+            estado: 'activo'
+          })
+        });
+        if (!res.ok) throw new Error("HTTP error " + res.status);
+        showToast(`+${days} días añadidos a ${u.first_name || telegramId}. Vence: ${newDateStr}`, "success");
+      } catch (err) {
+        console.error("Error guardando fecha límite:", err);
+        showToast("Error al guardar en Firebase: " + err.message, "error");
+      }
+    }
+
+    async function setCustomDate(telegramId, currentVal) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const promptVal = prompt("Introduce la fecha de vencimiento (AAAA-MM-DD):", currentVal || todayStr);
+      if (!promptVal) return;
+
+      const trimmed = promptVal.trim();
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+        alert("Formato inválido. Debe ser AAAA-MM-DD (ej: 2026-12-31)");
+        return;
+      }
+
+      const u = allUsers.find(x => String(x.telegram_id) === String(telegramId));
+      if (u) {
+        u.fecha_limite = trimmed;
+        u.rol = 'cliente';
+        u.estado = 'activo';
+      }
+
+      updateMetrics();
+      applyFiltersAndRender();
+
+      try {
+        const res = await fetch(`${FIREBASE_BASE_URL}/${telegramId}.json`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fecha_limite: trimmed,
+            rol: 'cliente',
+            estado: 'activo'
+          })
+        });
+        if (!res.ok) throw new Error("HTTP error " + res.status);
+        showToast(`Fecha límite de ${u ? u.first_name : telegramId} fijada en ${trimmed}`, "success");
+      } catch (err) {
+        console.error("Error guardando fecha límite:", err);
         showToast("Error al guardar en Firebase: " + err.message, "error");
       }
     }
