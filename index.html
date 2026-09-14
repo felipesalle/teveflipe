@@ -473,16 +473,23 @@
       font-size: 0.98rem;
     }
 
-    .showcase-list li span {
+    .showcase-list li span:first-child {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 22px;
-      height: 22px;
+      width: 24px;
+      height: 24px;
+      min-width: 24px;
+      flex-shrink: 0;
       background: rgba(0, 229, 255, 0.15);
       border-radius: 50%;
       color: var(--cyan-accent);
       font-size: 0.85rem;
+    }
+
+    .showcase-list li span:last-child {
+      color: var(--text-white);
+      line-height: 1.4;
     }
 
     .showcase-img img {
@@ -499,9 +506,9 @@
 
     .pricing-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 30px;
-      max-width: 960px;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 28px;
+      max-width: 1180px;
       margin: 0 auto;
     }
 
@@ -509,7 +516,7 @@
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: 24px;
-      padding: 40px 32px;
+      padding: 38px 28px;
       position: relative;
       display: flex;
       flex-direction: column;
@@ -522,6 +529,64 @@
       border: 2px solid var(--purple-primary);
       box-shadow: 0 15px 45px rgba(124, 77, 255, 0.25);
       transform: scale(1.03);
+    }
+
+    .pricing-plans-breakdown {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 12px 16px;
+      margin-bottom: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .plan-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.88rem;
+    }
+
+    .plan-row-name {
+      color: #dedee8;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .plan-row-price {
+      font-weight: 800;
+      color: white;
+      font-family: var(--font-title);
+    }
+
+    .plan-tag-save {
+      font-size: 0.7rem;
+      background: rgba(34, 197, 94, 0.18);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .dl-box {
+      background: rgba(0, 229, 255, 0.08);
+      border: 1px dashed var(--cyan-accent);
+      padding: 10px 14px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin: 16px 0 20px;
+      font-family: monospace;
+      font-size: 0.92rem;
+      color: var(--cyan-accent);
+      font-weight: 700;
     }
 
     .card-ribbon {
@@ -758,24 +823,24 @@
     <div class="container">
       <div class="badge-pill">
         <span class="badge-dot"></span>
-        Nueva Versión 1.2.6 • Android TV & Fire TV
+        Nueva Versión 1.3.1 • Android TV & Fire TV Stick
       </div>
       <h1 class="hero-title">
         Convierte tu Televisor en tu Propio <span>Cine Privado</span>
       </h1>
       <p class="hero-subtitle">
-        La plataforma de streaming definitiva para Android TV, TV Box y Proyectores. Reproduce series y películas desde tus canales con calidad Full HD, cero publicidad y navegación fluida con mando a distancia.
+        La plataforma de streaming definitiva para Android TV, Fire TV y Proyectores. Úsala con tus propios grupos o suscríbete a nuestro catálogo oficial con miles de películas en 1080p, series completas y cero cortes.
       </p>
 
       <div class="hero-actions">
         <a href="#planes" class="btn btn-primary" style="padding: 14px 28px; font-size: 1rem;">
           ⭐ Ver Planes y Precios
         </a>
-        <a href="https://wa.me/529612624006?text=%C2%A1Hola!%20Me%20interesa%20contratar%20TeVeFLIPE%20para%20mi%20televisor." target="_blank" class="btn btn-whatsapp" style="padding: 14px 22px; font-size: 1rem;">
-          💬 WhatsApp
+        <a href="#planes" class="btn" style="background: rgba(0, 229, 255, 0.15); color: var(--cyan-accent); border: 1px solid rgba(0, 229, 255, 0.4); padding: 14px 24px; font-size: 1rem;">
+          🎁 Probar 7 Días Gratis
         </a>
-        <a href="https://t.me/+529612193654" target="_blank" class="btn btn-telegram" style="padding: 14px 22px; font-size: 1rem;">
-          ✈️ Telegram
+        <a href="https://wa.me/529612624006?text=%C2%A1Hola!%20Me%20interesa%20contratar%20TeVeFLIPE%20para%20mi%20televisor." target="_blank" class="btn btn-whatsapp" style="padding: 14px 20px; font-size: 1rem;">
+          💬 WhatsApp
         </a>
       </div>
 
@@ -907,72 +972,146 @@
 
       <div class="pricing-grid">
         
-        <!-- Plan 1: App a Pelo -->
+        <!-- Tarjeta 1: Prueba Gratis -->
         <div class="pricing-card">
+          <div class="card-ribbon" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #0a0a12;">🎁 7 DÍAS GRATIS</div>
           <div>
-            <h3 class="pricing-plan">Plan Básico</h3>
-            <p class="pricing-plan-desc">Para quienes ya tienen sus propios canales de Telegram y quieren la mejor app en su TV.</p>
+            <h3 class="pricing-plan">Modo Demo</h3>
+            <p class="pricing-plan-desc">Prueba TeVeFLIPE en tu Android TV o Fire TV sin pagar nada y sin meter tarjeta.</p>
             
             <div class="pricing-price">
-              <span class="currency">$</span>
-              <span class="amount">100</span>
-              <span class="period">MXN / pago único</span>
+              <span class="currency">€</span>
+              <span class="amount">0</span>
+              <span class="period">Gratis / 7 días</span>
+            </div>
+
+            <div class="dl-box">
+              <span>📥 Downloader:</span>
+              <span style="user-select: all;">tinyurl.com/teveflipe-tv</span>
+            </div>
+
+            <ul class="pricing-features">
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Descarga directa en 1 minuto vía <strong>Downloader</strong></span>
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Acceso inmediato a los <strong>3 canales Demo</strong> de prueba</span>
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Inicio de sesión en 5 segundos con <strong>Código QR</strong></span>
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Calidad Full HD y cero publicidad</span>
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span><strong>Sin tarjeta</strong> ni cobros automáticos</span>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <a href="#como-funciona" class="btn" style="width: 100%; background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 12px; font-size: 0.95rem;">
+              🚀 Ver Pasos de Instalación
+            </a>
+            <p class="pricing-note" style="margin-top: 8px;">Activo automáticamente al iniciar sesión</p>
+          </div>
+        </div>
+
+        <!-- Tarjeta 2: Licencia App Personal -->
+        <div class="pricing-card">
+          <div>
+            <h3 class="pricing-plan">Licencia App</h3>
+            <p class="pricing-plan-desc">Para quienes ya tienen sus propios canales o grupos en Telegram y quieren la mejor app en su TV.</p>
+            
+            <div class="pricing-price">
+              <span class="currency">€</span>
+              <span class="amount">8</span>
+              <span class="period">~160 MXN / pago único</span>
             </div>
 
             <ul class="pricing-features">
               <li>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span><strong>App TeVeFLIPE</strong> para tu TV</span>
+                <span><strong>Licencia de por vida</strong> para tu televisor</span>
               </li>
               <li>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span>Conecta tu cuenta de Telegram</span>
+                <span>Conecta <strong>grupos y canales personales ilimitados</strong></span>
               </li>
               <li>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span>Reproductor nativo sin publicidad</span>
+                <span>Motor nativo C++ (TDLib) ultrarrápido</span>
               </li>
               <li>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span>Actualizaciones automáticas de por vida</span>
+                <span>Interfaz estilo Netflix optimizada para mando</span>
               </li>
               <li>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span>Soporte de instalación paso a paso</span>
+                <span>Actualizaciones automáticas continuas</span>
+              </li>
+              <li style="color: var(--text-muted); font-size: 0.88rem;">
+                <span>ℹ️</span>
+                <span><em>No incluye acceso a los repositorios VIP oficiales</em></span>
               </li>
             </ul>
           </div>
 
           <div>
             <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-              <a href="https://wa.me/529612624006?text=%C2%A1Hola!%20Quiero%20comprar%20el%20Plan%20B%C3%A1sico%20de%20TeVeFLIPE%20($100%20MXN%20pago%20%C3%BAnico)." target="_blank" class="btn btn-whatsapp" style="flex: 1; font-size: 0.9rem; padding: 12px 10px;">
+              <a href="https://wa.me/529612624006?text=%C2%A1Hola!%20Quiero%20adquirir%20la%20Licencia%20App%20de%20TeVeFLIPE%20(8%E2%82%AC%20/%20160%20MXN%20pago%20%C3%BAnico)." target="_blank" class="btn btn-whatsapp" style="flex: 1; font-size: 0.9rem; padding: 12px 10px;">
                 💬 WhatsApp
               </a>
               <a href="https://t.me/+529612193654" target="_blank" class="btn btn-telegram" style="flex: 1; font-size: 0.9rem; padding: 12px 10px;">
                 ✈️ Telegram
               </a>
             </div>
-            <p class="pricing-note">Licencia permanente para 1 dispositivo</p>
+            <p class="pricing-note">Licencia vitalicia para tu dispositivo</p>
           </div>
         </div>
 
-        <!-- Plan 2: VIP con Contenido -->
+        <!-- Tarjeta 3: Suscripción VIP Catálogo Completo -->
         <div class="pricing-card featured">
-          <div class="card-ribbon">⭐ MÁS POPULAR</div>
+          <div class="card-ribbon">⭐ CATÁLOGO COMPLETO</div>
           <div>
-            <h3 class="pricing-plan">Plan VIP Total</h3>
-            <p class="pricing-plan-desc">App completa + Acceso inmediato a nuestros grupos cerrados de películas y series.</p>
+            <h3 class="pricing-plan">Suscripción VIP</h3>
+            <p class="pricing-plan-desc">App completa + Acceso inmediato a nuestros repositorios cerrados de películas y series.</p>
             
             <div class="pricing-price">
-              <span class="currency">$</span>
-              <span class="amount">40</span>
-              <span class="period">MXN / mes</span>
+              <span class="currency">€</span>
+              <span class="amount">4</span>
+              <span class="period">~80 MXN / mes</span>
+            </div>
+
+            <!-- Desglose de Planes -->
+            <div class="pricing-plans-breakdown">
+              <div class="plan-row">
+                <span class="plan-row-name">📅 Plan Mensual</span>
+                <span class="plan-row-price">4 € <small style="color: var(--text-muted); font-size: 0.75rem;">(~80 MXN)</small></span>
+              </div>
+              <div class="plan-row">
+                <span class="plan-row-name">🔥 Plan Trimestral <span class="plan-tag-save">AHORRA</span></span>
+                <span class="plan-row-price">10 € <small style="color: var(--text-muted); font-size: 0.75rem;">(~200 MXN)</small></span>
+              </div>
+              <div class="plan-row">
+                <span class="plan-row-name">👑 Pase Anual <span class="plan-tag-save">MEJOR VALOR</span></span>
+                <span class="plan-row-price">30 € <small style="color: var(--text-muted); font-size: 0.75rem;">(~600 MXN)</small></span>
+              </div>
             </div>
 
             <ul class="pricing-features">
               <li>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span><strong>Todo lo del Plan Básico</strong> incluido</span>
+                <span><strong>Todo lo de la app incluido</strong></span>
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span><strong>Repositorio de Películas</strong> en 1080p y 4K</span>
               </li>
               <li>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -980,33 +1119,29 @@
               </li>
               <li>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span><strong>Repositorio de Películas</strong> en 1080p</span>
+                <span><strong>Canal de Series Españolas</strong> completas</span>
               </li>
               <li>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span>Sincronización diaria con nuevos contenidos</span>
+                <span>Sincronización diaria con nuevos estrenos</span>
               </li>
               <li>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                 <span>Audio en Español y sin cortes</span>
-              </li>
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span>Soporte VIP prioritario</span>
               </li>
             </ul>
           </div>
 
           <div>
             <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-              <a href="https://wa.me/529612624006?text=%C2%A1Hola!%20Quiero%20contratar%20el%20Plan%20VIP%20de%20TeVeFLIPE%20($40%20MXN/mes%20o%20promo%20trimestral)." target="_blank" class="btn btn-whatsapp" style="flex: 1; font-size: 0.9rem; padding: 12px 10px;">
+              <a href="https://wa.me/529612624006?text=%C2%A1Hola!%20Quiero%20suscribirme%20al%20Plan%20VIP%20de%20TeVeFLIPE." target="_blank" class="btn btn-whatsapp" style="flex: 1; font-size: 0.9rem; padding: 12px 10px;">
                 💬 WhatsApp
               </a>
               <a href="https://t.me/+529612193654" target="_blank" class="btn btn-telegram" style="flex: 1; font-size: 0.9rem; padding: 12px 10px;">
                 ✈️ Telegram
               </a>
             </div>
-            <p class="pricing-note">🔥 <strong>Promoción Trimestral:</strong> 3 meses por solo $100 MXN</p>
+            <p class="pricing-note">Sin permanencia • Cancela o renueva cuando quieras</p>
           </div>
         </div>
 
@@ -1024,20 +1159,20 @@
     <div class="steps-grid">
       <div class="step-card">
         <div class="step-num">1</div>
-        <h3 class="step-title">Elige tu Plan</h3>
-        <p class="step-desc">Escríbenos por WhatsApp para confirmar tu plan (Básico o VIP) y realizar tu pago de forma segura.</p>
+        <h3 class="step-title">Descarga con Downloader</h3>
+        <p class="step-desc">Abre la app <strong>Downloader</strong> en tu Fire TV o Android TV e introduce la URL directa: <code style="color: var(--cyan-accent); background: rgba(0,229,255,0.1); padding: 2px 6px; border-radius: 4px;">tinyurl.com/teveflipe-tv</code></p>
       </div>
 
       <div class="step-card">
         <div class="step-num">2</div>
-        <h3 class="step-title">Instala en tu Tele</h3>
-        <p class="step-desc">Te enviamos el código o enlace directo para descargar en la app Downloader de tu Smart TV o Fire TV Stick.</p>
+        <h3 class="step-title">Vincula con QR</h3>
+        <p class="step-desc">Abre TeVeFLIPE. En tu móvil ve a <em>Telegram &gt; Ajustes &gt; Dispositivos &gt; Vincular</em> y escanea el código que aparece en tu tele.</p>
       </div>
 
       <div class="step-card">
         <div class="step-num">3</div>
-        <h3 class="step-title">¡Disfruta!</h3>
-        <p class="step-desc">Abre TeVeFLIPE con tu mando a distancia, busca tu serie o película favorita y dale al Play.</p>
+        <h3 class="step-title">¡Disfruta al Instante!</h3>
+        <p class="step-desc">Entrarás de inmediato a disfrutar de <strong>7 días de prueba gratis</strong> o puedes escribirnos para activar tu Licencia App o Suscripción VIP.</p>
       </div>
     </div>
   </section>
@@ -1049,23 +1184,28 @@
     </div>
 
     <div class="faq-item">
+      <h4 class="faq-q">¿Cuál es la diferencia entre la Licencia App y la Suscripción VIP?</h4>
+      <p class="faq-a">La <strong>Licencia App (8 € / ~160 MXN pago único)</strong> es para quienes ya tienen sus propios canales o grupos en Telegram y quieren la mejor aplicación en su TV de por vida con sus contenidos personales. La <strong>Suscripción VIP (desde 4 € / ~80 MXN al mes)</strong> te da acceso completo e ilimitado a nuestros 3 repositorios oficiales con miles de películas 1080p, series completas y estrenos diarios organizados.</p>
+    </div>
+
+    <div class="faq-item">
+      <h4 class="faq-q">¿Cómo pruebo la aplicación antes de pagar?</h4>
+      <p class="faq-a">Es totalmente gratis. Descarga la app en tu televisor con Downloader escribiendo <strong style="color: var(--cyan-accent);">tinyurl.com/teveflipe-tv</strong>, escanea el código QR con tu Telegram y se activará automáticamente tu <strong>Modo Demo de 7 días</strong> con contenido de muestra sin necesidad de meter tarjeta ni datos de pago.</p>
+    </div>
+
+    <div class="faq-item">
       <h4 class="faq-q">¿En qué dispositivos puedo usar TeVeFLIPE?</h4>
-      <p class="faq-a">Es compatible con cualquier televisor o dispositivo con Android TV o Google TV (Xiaomi Mi Box, Chromecast, Smart TVs Sony, TCL, Hisense, etc.), Amazon Fire TV Stick y Proyectores Android.</p>
+      <p class="faq-a">Es compatible con cualquier televisor o dispositivo con Android TV o Google TV (Xiaomi Mi Box, Chromecast, Smart TVs Sony, TCL, Hisense, etc.), Amazon Fire TV Stick (todos los modelos) y Proyectores Android.</p>
     </div>
 
     <div class="faq-item">
       <h4 class="faq-q">¿Qué métodos de pago aceptan?</h4>
-      <p class="faq-a">Aceptamos transferencias bancarias directas (SPEI), depósitos en OXXO, Mercado Pago y PayPal.</p>
+      <p class="faq-a">Aceptamos transferencias bancarias directas (Bizum, Transferencia SEPA en Europa, SPEI en México), depósitos en OXXO, Mercado Pago y PayPal.</p>
     </div>
 
     <div class="faq-item">
       <h4 class="faq-q">¿Cómo se actualiza la aplicación?</h4>
-      <p class="faq-a">La aplicación cuenta con actualizador automático integrado. Cuando haya una nueva versión disponible, te saldrá un aviso en pantalla y se actualizará sola sin que tengas que volver a descargar nada manualmente.</p>
-    </div>
-
-    <div class="faq-item">
-      <h4 class="faq-q">¿Qué pasa si necesito ayuda para instalarla?</h4>
-      <p class="faq-a">Te asesoramos paso a paso por WhatsApp o Telegram hasta que quede funcionando en tu pantalla sin ningún costo extra.</p>
+      <p class="faq-a">La aplicación cuenta con actualizador automático integrado. Cuando publiquemos una nueva versión, te saldrá un aviso en pantalla y se actualizará sola con un clic sin que tengas que volver a descargar nada.</p>
     </div>
   </section>
 
