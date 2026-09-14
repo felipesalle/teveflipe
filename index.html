@@ -1,1232 +1,726 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="scroll-smooth dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TeVeFLIPE | Tu Plataforma de Streaming en Android TV y Fire TV</title>
-  <meta name="description" content="Convierte tu televisor en tu propio cine privado con TeVeFLIPE. Streaming nativo de películas y series sin anuncios ni límites en Android TV y Fire TV.">
+  <title>TeveFlipe | Reproductor Multimedia Inteligente en la Nube para Android TV y Fire TV</title>
+  <meta name="description" content="Reproductor multimedia nativo y cliente avanzado de nube para Android TV y Fire TV. Catálogo inteligente con metadatos, sin publicidad y máxima fluidez.">
   <link rel="icon" type="image/png" href="assets/icon.png">
+  
+  <!-- Tipografías de Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN con configuración personalizada -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#0B0F19',
+              darker: '#070A12',
+              card: '#0F172A',
+              cardHover: '#16223B',
+              border: 'rgba(255, 255, 255, 0.08)',
+              borderHover: 'rgba(99, 102, 241, 0.35)',
+              indigo: '#6366F1',
+              violet: '#8B5CF6',
+              cyan: '#00E5FF',
+              emerald: '#10B981',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            display: ['Outfit', 'Inter', 'sans-serif'],
+          },
+          boxShadow: {
+            'glow-indigo': '0 0 45px -10px rgba(99, 102, 241, 0.35)',
+            'glow-cyan': '0 0 45px -10px rgba(0, 229, 255, 0.25)',
+            'glow-emerald': '0 0 40px -10px rgba(16, 185, 129, 0.3)',
+            'tv': '0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 35px -5px rgba(99, 102, 241, 0.2)',
+          }
+        }
+      }
+    }
+  </script>
+
   <style>
-    :root {
-      --bg-dark: #0a0a12;
-      --bg-card: #131322;
-      --bg-card-hover: #1a1a2e;
-      --purple-primary: #7c4dff;
-      --purple-glow: rgba(124, 77, 255, 0.4);
-      --cyan-accent: #00e5ff;
-      --cyan-glow: rgba(0, 229, 255, 0.35);
-      --text-white: #ffffff;
-      --text-muted: #a0a0b8;
-      --border-color: rgba(255, 255, 255, 0.08);
-      --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      --font-title: 'Outfit', sans-serif;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      background-color: var(--bg-dark);
-      color: var(--text-white);
-      font-family: var(--font-body);
-      line-height: 1.6;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* Ambient background lights */
-    .glow-bg {
-      position: fixed;
-      top: -20%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 800px;
-      height: 600px;
-      background: radial-gradient(circle, rgba(124, 77, 255, 0.22) 0%, rgba(0, 229, 255, 0.08) 45%, transparent 70%);
+    /* Efecto de luz ambiental de fondo */
+    .ambient-glow {
+      position: absolute;
+      width: 750px;
+      height: 480px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, rgba(139, 92, 246, 0.08) 45%, transparent 70%);
+      filter: blur(90px);
       pointer-events: none;
       z-index: 0;
-      filter: blur(80px);
     }
 
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 24px;
-      position: relative;
-      z-index: 1;
-    }
-
-    /* Header */
-    header {
-      padding: 24px 0;
-      border-bottom: 1px solid var(--border-color);
-      backdrop-filter: blur(12px);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(10, 10, 18, 0.75);
-    }
-
-    .nav-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      text-decoration: none;
-      color: white;
-    }
-
-    .brand img {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px var(--purple-glow);
-    }
-
-    .brand-name {
-      font-family: var(--font-title);
-      font-weight: 800;
-      font-size: 1.45rem;
-      letter-spacing: 0.5px;
-      background: linear-gradient(135deg, #ffffff 40%, var(--cyan-accent) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 28px;
-    }
-
-    .nav-links a {
-      color: var(--text-muted);
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 0.95rem;
-      transition: color 0.2s;
-    }
-
-    .nav-links a:hover {
-      color: var(--cyan-accent);
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-weight: 700;
-      font-size: 0.95rem;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      border: none;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--purple-primary) 0%, #9c27b0 100%);
-      color: white;
-      box-shadow: 0 4px 20px var(--purple-glow);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(124, 77, 255, 0.6);
-    }
-
-    .btn-whatsapp {
-      background: #25d366;
-      color: #0b2512;
-      box-shadow: 0 4px 20px rgba(37, 211, 102, 0.35);
-      font-weight: 800;
-    }
-
-    .btn-whatsapp:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(37, 211, 102, 0.55);
-      background: #20bd5a;
-    }
-
-    .btn-telegram {
-      background: #0088cc;
-      color: white;
-      box-shadow: 0 4px 20px rgba(0, 136, 204, 0.35);
-      font-weight: 700;
-    }
-
-    .btn-telegram:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(0, 136, 204, 0.55);
-      background: #0077b5;
-    }
-
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.08);
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-    }
-
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.14);
-      transform: translateY(-2px);
-    }
-
-    /* Hero Section */
-    .hero {
-      padding: 70px 0 60px;
-      text-align: center;
-    }
-
-    .badge-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 18px;
-      background: rgba(124, 77, 255, 0.12);
-      border: 1px solid rgba(124, 77, 255, 0.4);
-      border-radius: 50px;
-      color: var(--cyan-accent);
-      font-size: 0.82rem;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      margin-bottom: 24px;
-    }
-
-    .badge-dot {
-      width: 8px;
-      height: 8px;
-      background: #00e5ff;
-      border-radius: 50%;
-      box-shadow: 0 0 10px #00e5ff;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0% { opacity: 1; }
-      50% { opacity: 0.4; }
-      100% { opacity: 1; }
-    }
-
-    .hero-title {
-      font-family: var(--font-title);
-      font-size: 3.4rem;
-      font-weight: 800;
-      line-height: 1.15;
-      margin-bottom: 20px;
-      max-width: 900px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .hero-title span {
-      background: linear-gradient(135deg, #00e5ff 0%, #a855f7 70%, #ec4899 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .hero-subtitle {
-      font-size: 1.2rem;
-      color: var(--text-muted);
-      max-width: 720px;
-      margin: 0 auto 36px;
-      font-weight: 500;
-    }
-
-    .hero-actions {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-bottom: 50px;
-    }
-
-    /* TV Mockup */
-    .tv-mockup-wrapper {
-      position: relative;
-      max-width: 1020px;
-      margin: 0 auto;
-    }
-
-    .tv-glow {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 90%;
-      height: 70%;
-      background: radial-gradient(ellipse, rgba(124, 77, 255, 0.4) 0%, rgba(0, 229, 255, 0.25) 50%, transparent 75%);
-      filter: blur(60px);
-      z-index: -1;
-    }
-
-    .tv-frame {
-      background: #020205;
-      padding: 12px 12px 16px;
-      border-radius: 20px;
-      border: 3px solid #232338;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
-      position: relative;
-    }
-
-    .tv-frame img {
-      width: 100%;
-      height: auto;
-      display: block;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .tv-chin {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding-top: 10px;
-    }
-
-    .tv-logo {
-      font-family: var(--font-title);
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: #6c6c8c;
-      letter-spacing: 2px;
-    }
-
-    .tv-stand {
-      width: 200px;
-      height: 12px;
-      background: linear-gradient(180deg, #1b1b2a 0%, #0c0c14 100%);
-      margin: 0 auto;
-      border-radius: 0 0 6px 6px;
-      border: 1px solid #252538;
-      border-top: none;
-    }
-
-    /* Compatible devices bar */
-    .devices-bar {
-      margin-top: 40px;
-      padding: 20px;
-      background: rgba(19, 19, 34, 0.6);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
-
-    .device-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--text-muted);
-      font-weight: 600;
-      font-size: 0.95rem;
-    }
-
-    .device-icon {
-      font-size: 1.4rem;
-    }
-
-    /* Features Grid */
-    .section-header {
-      text-align: center;
-      margin-bottom: 50px;
-    }
-
-    .section-title {
-      font-family: var(--font-title);
-      font-size: 2.3rem;
-      font-weight: 800;
-      margin-bottom: 12px;
-    }
-
-    .section-subtitle {
-      color: var(--text-muted);
-      font-size: 1.05rem;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 24px;
-      margin-bottom: 80px;
-    }
-
-    .feature-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 18px;
-      padding: 30px;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .feature-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 3px;
-      background: linear-gradient(90deg, transparent, var(--purple-primary), transparent);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .feature-card:hover {
-      background: var(--bg-card-hover);
-      transform: translateY(-4px);
-      border-color: rgba(124, 77, 255, 0.4);
-    }
-
-    .feature-card:hover::before {
-      opacity: 1;
-    }
-
-    .feature-icon-box {
-      width: 54px;
-      height: 54px;
-      border-radius: 14px;
-      background: rgba(124, 77, 255, 0.15);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.7rem;
-      margin-bottom: 20px;
-      border: 1px solid rgba(124, 77, 255, 0.3);
-    }
-
-    .feature-title {
-      font-family: var(--font-title);
-      font-size: 1.3rem;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-
-    .feature-desc {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      line-height: 1.55;
-    }
-
-    /* Showcase preview section */
-    .showcase {
-      margin: 90px 0;
-      background: linear-gradient(180deg, rgba(19, 19, 34, 0.8) 0%, rgba(10, 10, 18, 0.9) 100%);
-      border: 1px solid var(--border-color);
-      border-radius: 24px;
-      padding: 50px 40px;
-    }
-
-    .showcase-content {
-      display: grid;
-      grid-template-columns: 1fr 1.1fr;
-      gap: 50px;
-      align-items: center;
-    }
-
-    .showcase-text h3 {
-      font-family: var(--font-title);
-      font-size: 2.1rem;
-      font-weight: 800;
-      margin-bottom: 16px;
-      line-height: 1.2;
-    }
-
-    .showcase-text p {
-      color: var(--text-muted);
-      margin-bottom: 24px;
-      font-size: 1rem;
-    }
-
-    .showcase-list {
-      list-style: none;
-      margin-bottom: 30px;
-    }
-
-    .showcase-list li {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: var(--text-white);
-      margin-bottom: 14px;
-      font-weight: 600;
-      font-size: 0.98rem;
-    }
-
-    .showcase-list li span:first-child {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 24px;
-      height: 24px;
-      min-width: 24px;
-      flex-shrink: 0;
-      background: rgba(0, 229, 255, 0.15);
-      border-radius: 50%;
-      color: var(--cyan-accent);
-      font-size: 0.85rem;
-    }
-
-    .showcase-list li span:last-child {
-      color: var(--text-white);
-      line-height: 1.4;
-    }
-
-    .showcase-img img {
-      width: 100%;
-      border-radius: 16px;
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    /* Pricing Section */
-    .pricing-section {
-      padding: 60px 0 100px;
-    }
-
-    .pricing-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
-      gap: 28px;
-      max-width: 1180px;
-      margin: 0 auto;
-    }
-
-    .pricing-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 24px;
-      padding: 38px 28px;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      transition: all 0.3s ease;
-    }
-
-    .pricing-card.featured {
-      background: linear-gradient(180deg, #18152e 0%, #121024 100%);
-      border: 2px solid var(--purple-primary);
-      box-shadow: 0 15px 45px rgba(124, 77, 255, 0.25);
-      transform: scale(1.03);
-    }
-
-    .pricing-plans-breakdown {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px;
-      padding: 12px 16px;
-      margin-bottom: 22px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .plan-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.88rem;
-    }
-
-    .plan-row-name {
-      color: #dedee8;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .plan-row-price {
-      font-weight: 800;
-      color: white;
-      font-family: var(--font-title);
-    }
-
-    .plan-tag-save {
-      font-size: 0.7rem;
-      background: rgba(34, 197, 94, 0.18);
-      color: #4ade80;
-      border: 1px solid rgba(34, 197, 94, 0.3);
-      padding: 1px 6px;
-      border-radius: 4px;
-      font-weight: 700;
-    }
-
-    .dl-box {
-      background: rgba(0, 229, 255, 0.08);
-      border: 1px dashed var(--cyan-accent);
-      padding: 10px 14px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin: 16px 0 20px;
-      font-family: monospace;
-      font-size: 0.92rem;
-      color: var(--cyan-accent);
-      font-weight: 700;
-    }
-
-    .card-ribbon {
-      position: absolute;
-      top: -14px;
-      right: 32px;
-      background: linear-gradient(135deg, var(--cyan-accent), #7c4dff);
-      color: #0b111e;
-      font-weight: 800;
-      font-size: 0.75rem;
-      padding: 4px 14px;
-      border-radius: 50px;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      box-shadow: 0 4px 12px var(--cyan-glow);
-    }
-
-    .pricing-plan {
-      font-family: var(--font-title);
-      font-size: 1.5rem;
-      font-weight: 800;
-      margin-bottom: 6px;
-    }
-
-    .pricing-plan-desc {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      margin-bottom: 24px;
-      min-height: 40px;
-    }
-
-    .pricing-price {
-      display: flex;
-      align-items: baseline;
-      gap: 6px;
-      margin-bottom: 26px;
-      padding-bottom: 24px;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .currency {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text-white);
-    }
-
-    .amount {
-      font-family: var(--font-title);
-      font-size: 3.4rem;
-      font-weight: 800;
-      line-height: 1;
-      color: var(--text-white);
-    }
-
-    .period {
-      color: var(--text-muted);
-      font-weight: 600;
-      font-size: 0.95rem;
-    }
-
-    .pricing-features {
-      list-style: none;
-      margin-bottom: 34px;
-      flex-grow: 1;
-    }
-
-    .pricing-features li {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      margin-bottom: 14px;
-      font-size: 0.95rem;
-      color: #dedee8;
-    }
-
-    .pricing-features li svg {
-      flex-shrink: 0;
-      margin-top: 3px;
-      color: #00e5ff;
-    }
-
-    .pricing-note {
-      text-align: center;
-      margin-top: 14px;
-      color: var(--text-muted);
-      font-size: 0.8rem;
-    }
-
-    /* Steps Section */
-    .steps-section {
-      padding: 60px 0 80px;
-    }
-
-    .steps-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 24px;
-    }
-
-    .step-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 18px;
-      padding: 30px;
-      text-align: center;
-      position: relative;
-    }
-
-    .step-num {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--purple-primary), var(--cyan-accent));
-      color: #0c0c16;
-      font-weight: 800;
-      font-family: var(--font-title);
-      font-size: 1.2rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 20px;
-    }
-
-    .step-title {
-      font-family: var(--font-title);
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .step-desc {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
-
-    /* FAQ Section */
-    .faq-section {
-      padding: 60px 0 100px;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    .faq-item {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 22px 26px;
-      margin-bottom: 14px;
-    }
-
-    .faq-q {
-      font-family: var(--font-title);
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: white;
-      margin-bottom: 8px;
-    }
-
-    .faq-a {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      line-height: 1.55;
-    }
-
-    /* Footer */
-    footer {
-      border-top: 1px solid var(--border-color);
-      padding: 40px 0;
-      text-align: center;
-      background: #08080f;
-    }
-
-    .footer-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .footer-copy {
-      color: var(--text-muted);
-      font-size: 0.88rem;
-    }
-
-    /* Responsive */
-    @media (max-width: 900px) {
-      .hero-title {
-        font-size: 2.5rem;
-      }
-      .showcase-content {
-        grid-template-columns: 1fr;
-      }
-      .pricing-card.featured {
-        transform: none;
-      }
-    }
-
-    @media (max-width: 600px) {
-      .hero-title {
-        font-size: 2.1rem;
-      }
-      .hero-subtitle {
-        font-size: 1.05rem;
-      }
-      .nav-links {
-        display: none;
-      }
+    /* Animación suave para acordeón */
+    .faq-content {
+      transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
     }
   </style>
 </head>
-<body>
+<body class="bg-brand-dark text-slate-100 font-sans antialiased selection:bg-brand-indigo selection:text-white relative overflow-x-hidden min-h-screen flex flex-col">
 
-  <div class="glow-bg"></div>
+  <!-- Luces ambientales de fondo -->
+  <div class="ambient-glow -top-32 left-1/2 -translate-x-1/2"></div>
+  <div class="ambient-glow top-[1200px] -left-48 opacity-70"></div>
+  <div class="ambient-glow top-[2400px] -right-48 opacity-70"></div>
 
-  <!-- Header -->
-  <header>
-    <div class="container nav-bar">
-      <a href="#" class="brand">
-        <img src="assets/icon.png" alt="TeVeFLIPE Logo">
-        <span class="brand-name">TeVeFLIPE</span>
+  <!-- NAVEGACIÓN SUPERIOR -->
+  <header class="sticky top-0 z-50 backdrop-blur-xl bg-brand-dark/80 border-b border-brand-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- Marca / Logotipo -->
+      <a href="#" class="flex items-center gap-3.5 group">
+        <div class="relative w-11 h-11 rounded-xl overflow-hidden shadow-lg shadow-brand-indigo/25 ring-1 ring-white/20 transition group-hover:scale-105">
+          <img src="assets/icon.png" alt="TeveFlipe Logo" class="w-full h-full object-cover">
+        </div>
+        <div class="flex flex-col">
+          <span class="font-display font-extrabold text-2xl tracking-tight text-white group-hover:text-brand-indigo transition-colors">
+            Teve<span class="bg-gradient-to-r from-brand-indigo via-brand-violet to-brand-cyan bg-clip-text text-transparent">Flipe</span>
+          </span>
+          <span class="text-[10px] tracking-widest uppercase font-semibold text-slate-400">TV Cloud Client</span>
+        </div>
       </a>
-      <div class="nav-links">
-        <a href="#caracteristicas">Características</a>
-        <a href="#planes">Planes</a>
-        <a href="#como-funciona">Cómo Funciona</a>
-        <a href="#faq">Preguntas</a>
+
+      <!-- Enlaces de navegación (Desktop) -->
+      <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+        <a href="#caracteristicas" class="hover:text-brand-cyan transition-colors">Ventajas</a>
+        <a href="#instalacion" class="hover:text-brand-cyan transition-colors">Instalación</a>
+        <a href="#planes" class="hover:text-brand-cyan transition-colors">Acceso & Planes</a>
+        <a href="#faq" class="hover:text-brand-cyan transition-colors">Preguntas</a>
+      </nav>
+
+      <!-- Botones de Acción -->
+      <div class="flex items-center gap-3">
+        <a href="https://t.me/+529612193654" target="_blank" rel="noopener" class="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/80 hover:bg-slate-800 border border-slate-700/60 transition">
+          <svg class="w-4 h-4 text-brand-cyan fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.12.03-1.99 1.27-5.61 3.72-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.88.03-.24.37-.49 1.02-.75 3.99-1.74 6.66-2.89 8.01-3.46 3.82-1.6 4.62-1.88 5.14-1.89.11 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.13-.04.22z"/></svg>
+          Comunidad
+        </a>
+        <a href="https://tinyurl.com/teveflipe-tv" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-brand-indigo to-brand-violet hover:from-indigo-500 hover:to-purple-500 shadow-md shadow-brand-indigo/30 transition transform hover:-translate-y-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          Descargar APK
+        </a>
       </div>
-      <a href="#planes" class="btn btn-primary">Adquirir Ahora</a>
     </div>
   </header>
 
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="container">
-      <div class="badge-pill">
-        <span class="badge-dot"></span>
-        Nueva Versión 1.3.1 • Android TV & Fire TV Stick
-      </div>
-      <h1 class="hero-title">
-        Convierte tu Televisor en tu Propio <span>Cine Privado</span>
-      </h1>
-      <p class="hero-subtitle">
-        La plataforma de streaming definitiva para Android TV, Fire TV y Proyectores. Úsala con tus propios grupos o suscríbete a nuestro catálogo oficial con miles de películas en 1080p, series completas y cero cortes.
-      </p>
+  <main class="flex-grow">
 
-      <div class="hero-actions">
-        <a href="#planes" class="btn btn-primary" style="padding: 14px 28px; font-size: 1rem;">
-          ⭐ Ver Planes y Precios
-        </a>
-        <a href="#planes" class="btn" style="background: rgba(0, 229, 255, 0.15); color: var(--cyan-accent); border: 1px solid rgba(0, 229, 255, 0.4); padding: 14px 24px; font-size: 1rem;">
-          🎁 Probar 7 Días Gratis
-        </a>
-        <a href="https://wa.me/529612624006?text=%C2%A1Hola!%20Me%20interesa%20contratar%20TeVeFLIPE%20para%20mi%20televisor." target="_blank" class="btn btn-whatsapp" style="padding: 14px 20px; font-size: 1rem;">
-          💬 WhatsApp
-        </a>
-      </div>
-
-      <!-- TV Mockup with real screenshot -->
-      <div class="tv-mockup-wrapper">
-        <div class="tv-glow"></div>
-        <div class="tv-frame">
-          <img src="assets/hero_tv.png" alt="TeVeFLIPE Pantalla en Android TV">
-          <div class="tv-chin">
-            <span class="tv-logo">TEVEFLIPE SMART CINEMA</span>
-          </div>
-        </div>
-        <div class="tv-stand"></div>
-      </div>
-
-      <!-- Devices Bar -->
-      <div class="devices-bar">
-        <div class="device-item">
-          <span class="device-icon">📺</span>
-          <span>Xiaomi TV Box & Stick</span>
-        </div>
-        <div class="device-item">
-          <span class="device-icon">🔥</span>
-          <span>Amazon Fire TV Stick</span>
-        </div>
-        <div class="device-item">
-          <span class="device-icon">📱</span>
-          <span>Google TV & Chromecast</span>
-        </div>
-        <div class="device-item">
-          <span class="device-icon">🎬</span>
-          <span>Smart TVs (Android TV)</span>
-        </div>
-        <div class="device-item">
-          <span class="device-icon">📽️</span>
-          <span>Proyectores Inteligentes</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Features Section -->
-  <section id="caracteristicas" class="container" style="padding: 60px 0;">
-    <div class="section-header">
-      <h2 class="section-title">¿Por qué elegir TeVeFLIPE?</h2>
-      <p class="section-subtitle">Diseñada desde cero para ofrecer la experiencia premium que Netflix o Max tienen, pero con la libertad de tu propio contenido.</p>
-    </div>
-
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon-box">⚡</div>
-        <h3 class="feature-title">Streaming Ultrarrápido</h3>
-        <p class="feature-desc">Reproducción directa sin esperas molestas ni cortes. Utiliza la potente red global de servidores con calidad hasta 1080p y 4K nativo.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon-box">🎮</div>
-        <h3 class="feature-title">100% Control Remoto</h3>
-        <p class="feature-desc">Olvídate de ratones virtuales o punteros incómodos. Cada menú, tarjeta y botón responde inmediatamente al D-Pad de tu mando.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon-box">🍿</div>
-        <h3 class="feature-title">Continuar Viendo Inteligente</h3>
-        <p class="feature-desc">¿Te quedaste a mitad de película? La app recuerda exactamente el minuto y segundo donde lo dejaste para reanudar con un solo clic.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon-box">🔊</div>
-        <h3 class="feature-title">Audio y Subtítulos Dinámicos</h3>
-        <p class="feature-desc">Cambia al vuelo entre pistas de audio en castellano, latino o versión original, así como subtítulos completos integrados.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon-box">🔄</div>
-        <h3 class="feature-title">Actualizaciones Automáticas</h3>
-        <p class="feature-desc">Sistema propio de actualizaciones en segundo plano. Cuando publiquemos mejoras, tu televisor te avisará y se actualizará con un clic.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon-box">🚫</div>
-        <h3 class="feature-title">Cero Publicidad ni Spam</h3>
-        <p class="feature-desc">Sin anuncios emergentes, ventanas invasivas ni enlaces fraudulentos. Entras directo a ver lo que quieres sin interrupciones.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Showcase / Specs -->
-  <div class="container">
-    <div class="showcase">
-      <div class="showcase-content">
-        <div class="showcase-text">
-          <h3>Un Menú de Ajustes que cuida tu Televisor</h3>
-          <p>Supervisa el rendimiento de tu TV Box en tiempo real sin salir de la app.</p>
-          <ul class="showcase-list">
-            <li>
-              <span>✓</span>
-              <span>Comprobador de actualizaciones en 1 clic</span>
-            </li>
-            <li>
-              <span>✓</span>
-              <span>Detección automática del modelo y versión de Android</span>
-            </li>
-            <li>
-              <span>✓</span>
-              <span>Gestión y purga de caché para no llenar la memoria de tu TV</span>
-            </li>
-            <li>
-              <span>✓</span>
-              <span>Motor ExoPlayer y compatibilidad externa con VLC</span>
-            </li>
-          </ul>
-          <a href="#planes" class="btn btn-secondary">Comenzar Ahora →</a>
-        </div>
-        <div class="showcase-img">
-          <img src="assets/settings_tv.png" alt="Ajustes de TeVeFLIPE en Android TV">
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Pricing Section -->
-  <section id="planes" class="pricing-section">
-    <div class="container">
-      <div class="section-header">
-        <h2 class="section-title">Elige el Plan que Mejor se Adapte a Ti</h2>
-        <p class="section-subtitle">Precios justos, sin letras pequeñas ni contratos forzosos. Tú decides cómo disfrutar.</p>
-      </div>
-
-      <div class="pricing-grid">
+    <!-- SECCIÓN 1: HERO (IMPACTO VISUAL CRO) -->
+    <section class="relative pt-12 pb-20 md:pt-20 md:pb-32 overflow-hidden">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
         
-        <!-- Tarjeta 1: Prueba Gratis -->
-        <div class="pricing-card">
-          <div class="card-ribbon" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #0a0a12;">🎁 7 DÍAS GRATIS</div>
-          <div>
-            <h3 class="pricing-plan">Modo Demo</h3>
-            <p class="pricing-plan-desc">Prueba TeVeFLIPE en tu Android TV o Fire TV sin pagar nada y sin meter tarjeta.</p>
-            
-            <div class="pricing-price">
-              <span class="currency">€</span>
-              <span class="amount">0</span>
-              <span class="period">Gratis / 7 días</span>
-            </div>
+        <!-- Badge Superior -->
+        <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-900/90 border border-brand-border backdrop-blur-md mb-8 shadow-inner">
+          <span class="w-2 h-2 rounded-full bg-brand-emerald animate-pulse"></span>
+          <span class="text-xs font-semibold text-slate-300">
+            v1.3.1 Disponible • Optimizado para Android TV y Fire TV
+          </span>
+        </div>
 
-            <div class="dl-box">
-              <span>📥 Downloader:</span>
-              <span style="user-select: all;">tinyurl.com/teveflipe-tv</span>
-            </div>
+        <!-- Titular Principal H1 -->
+        <h1 class="font-display font-black text-4xl sm:text-6xl lg:text-7xl tracking-tight text-white max-w-5xl mx-auto leading-[1.12]">
+          Tu contenido favorito en la gran pantalla. <span class="bg-gradient-to-r from-brand-indigo via-purple-400 to-brand-cyan bg-clip-text text-transparent">Rápido, fluido y sin cortes.</span>
+        </h1>
 
-            <ul class="pricing-features">
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span>Descarga directa en 1 minuto vía <strong>Downloader</strong></span>
-              </li>
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span>Acceso inmediato a los <strong>3 canales Demo</strong> de prueba</span>
-              </li>
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span>Inicio de sesión en 5 segundos con <strong>Código QR</strong></span>
-              </li>
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span>Calidad Full HD y cero publicidad</span>
-              </li>
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span><strong>Sin tarjeta</strong> ni cobros automáticos</span>
-              </li>
-            </ul>
+        <!-- Subtítulo -->
+        <p class="mt-6 text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed font-normal">
+          TeveFlipe transforma la forma en que disfrutas tus canales y bibliotecas en la nube. Diseñado desde cero para control remoto: cero publicidad molesta, carátulas en alta definición y reproducción instantánea.
+        </p>
+
+        <!-- Botones de Acción Hero -->
+        <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto sm:max-w-none">
+          <a href="https://tinyurl.com/teveflipe-tv" class="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl text-base font-bold text-white bg-gradient-to-r from-brand-indigo to-brand-violet hover:from-indigo-500 hover:to-purple-500 shadow-glow-indigo transition transform hover:-translate-y-1">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Descargar APK Directo
+          </a>
+          <a href="https://t.me/+529612193654" target="_blank" rel="noopener" class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-2xl text-base font-semibold text-slate-200 bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 hover:border-slate-600 transition">
+            <svg class="w-5 h-5 text-brand-cyan fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.12.03-1.99 1.27-5.61 3.72-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.88.03-.24.37-.49 1.02-.75 3.99-1.74 6.66-2.89 8.01-3.46 3.82-1.6 4.62-1.88 5.14-1.89.11 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.13-.04.22z"/></svg>
+            Soporte & Comunidad
+          </a>
+        </div>
+
+        <!-- Microcopy de confianza -->
+        <p class="mt-4 text-xs text-slate-400 font-medium">
+          ⚡ Prueba de cortesía de 3 días incluida • Sin tarjeta de crédito requerida • Fácil instalación en 2 minutos
+        </p>
+
+        <!-- MOCKUP TELEVISOR ESTILIZADO -->
+        <div class="mt-14 sm:mt-18 max-w-5xl mx-auto relative group">
+          <!-- Luz tras el televisor -->
+          <div class="absolute -inset-1 bg-gradient-to-r from-brand-indigo via-purple-600 to-brand-cyan rounded-3xl opacity-25 blur-2xl group-hover:opacity-40 transition duration-700"></div>
+          
+          <div class="relative rounded-2xl md:rounded-3xl bg-[#090D16] p-2.5 sm:p-4 border border-slate-800/80 shadow-tv">
+            <!-- Marco de pantalla -->
+            <div class="rounded-xl overflow-hidden bg-black aspect-video relative ring-1 ring-white/10">
+              <img src="assets/hero_tv.png" alt="Interfaz de TeveFlipe en Android TV" class="w-full h-full object-cover">
+            </div>
+            <!-- Barra inferior del TV / Marca sutil -->
+            <div class="pt-2 flex items-center justify-center">
+              <span class="text-[10px] font-bold tracking-[0.25em] text-slate-500 uppercase">TEVEFLIPE SMART CINEMA CLIENT</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dispositivos Compatibles -->
+        <div class="mt-16 pt-10 border-t border-brand-border">
+          <p class="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-6">Compatibilidad 100% Nativa Verificada</p>
+          <div class="flex flex-wrap items-center justify-center gap-6 sm:gap-12 text-slate-300 text-sm font-medium">
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl">🔥</span>
+              <span>Amazon Fire TV Stick</span>
+            </div>
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl">📺</span>
+              <span>Xiaomi TV Box & Stick</span>
+            </div>
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl">📱</span>
+              <span>Google TV & Chromecast</span>
+            </div>
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl">🎬</span>
+              <span>Smart TVs Android (Sony, TCL, Hisense)</span>
+            </div>
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl">📽️</span>
+              <span>Proyectores Android</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- SECCIÓN 2: CARACTERÍSTICAS DESTACADAS (GRID CRO) -->
+    <section id="caracteristicas" class="py-20 md:py-28 relative bg-brand-darker/60 border-y border-brand-border">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <h2 class="text-xs font-bold uppercase tracking-widest text-brand-indigo mb-3">Diseñado para la Gran Pantalla</h2>
+          <h3 class="font-display font-extrabold text-3xl sm:text-4xl text-white tracking-tight">
+            Todo lo que le faltaba a tu televisor, en una sola aplicación.
+          </h3>
+          <p class="mt-4 text-slate-300 text-base">
+            Olvídate de reproductores lentos o inventos que no responden al mando. TeveFlipe une el potencial de la nube con la interfaz más limpia del mercado.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          
+          <!-- Card 1 -->
+          <div class="p-8 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm hover:border-brand-indigo/40 hover:-translate-y-1 transition duration-300">
+            <div class="w-13 h-13 rounded-xl bg-brand-indigo/15 border border-brand-indigo/30 flex items-center justify-center text-brand-indigo text-2xl mb-6 p-3">
+              ⚡
+            </div>
+            <h4 class="font-display font-bold text-xl text-white mb-2.5">Rendimiento Nativo en TV</h4>
+            <p class="text-slate-300 text-sm leading-relaxed">
+              Cero tirones. Desarrollado en Jetpack Compose con motor nativo TDLib en C++. Optimizado específicamente para rendir al máximo incluso en sticks y TV Boxes con recursos modestos.
+            </p>
           </div>
 
-          <div>
-            <a href="#como-funciona" class="btn" style="width: 100%; background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 12px; font-size: 0.95rem;">
-              🚀 Ver Pasos de Instalación
+          <!-- Card 2 -->
+          <div class="p-8 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm hover:border-brand-indigo/40 hover:-translate-y-1 transition duration-300">
+            <div class="w-13 h-13 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-2xl mb-6 p-3">
+              🚫
+            </div>
+            <h4 class="font-display font-bold text-xl text-white mb-2.5">Cero Publicidad</h4>
+            <p class="text-slate-300 text-sm leading-relaxed">
+              Sin ventanas emergentes, acortadores de enlaces tramposos ni anuncios invasivos. Tu tiempo vale: enciendes la tele, eliges tu contenido y disfrutas sin distracciones.
+            </p>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="p-8 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm hover:border-brand-indigo/40 hover:-translate-y-1 transition duration-300">
+            <div class="w-13 h-13 rounded-xl bg-brand-cyan/15 border border-brand-cyan/30 flex items-center justify-center text-brand-cyan text-2xl mb-6 p-3">
+              🎨
+            </div>
+            <h4 class="font-display font-bold text-xl text-white mb-2.5">Catálogos con Metadatos</h4>
+            <p class="text-slate-300 text-sm leading-relaxed">
+              Integración automática con TMDb. Convierte listas de archivos caóticas en un escaparate visual impecable con pósters en HD, sinopsis en español, géneros y temporadas ordenadas.
+            </p>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="p-8 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm hover:border-brand-indigo/40 hover:-translate-y-1 transition duration-300">
+            <div class="w-13 h-13 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400 text-2xl mb-6 p-3">
+              ☁️
+            </div>
+            <h4 class="font-display font-bold text-xl text-white mb-2.5">Reproducción en la Nube</h4>
+            <p class="text-slate-300 text-sm leading-relaxed">
+              Streaming directo desde la nube global de Telegram sin esperas de descarga. Reproduce al instante archivos en Full HD y 4K con la fluidez que exige un televisor moderno.
+            </p>
+          </div>
+
+          <!-- Card 5 -->
+          <div class="p-8 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm hover:border-brand-indigo/40 hover:-translate-y-1 transition duration-300">
+            <div class="w-13 h-13 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 text-2xl mb-6 p-3">
+              🎁
+            </div>
+            <h4 class="font-display font-bold text-xl text-white mb-2.5">Auto-Activación de Cortesía</h4>
+            <p class="text-slate-300 text-sm leading-relaxed">
+              Instala la aplicación y disfruta de inmediato de 3 días de acceso completo de cortesía para comprobar la calidad y velocidad en tu pantalla. Sin tarjetas de crédito ni datos bancarios.
+            </p>
+          </div>
+
+          <!-- Card 6 -->
+          <div class="p-8 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm hover:border-brand-indigo/40 hover:-translate-y-1 transition duration-300">
+            <div class="w-13 h-13 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 text-2xl mb-6 p-3">
+              ⚙️
+            </div>
+            <h4 class="font-display font-bold text-xl text-white mb-2.5">Ajustes que Cuidan tu TV</h4>
+            <p class="text-slate-300 text-sm leading-relaxed">
+              Supervisión de rendimiento en tiempo real, herramienta de purga de caché para proteger la memoria interna de tu dispositivo y sistema integrado de actualización en 1 clic.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- SECCIÓN 3: TUTORIAL DE INSTALACIÓN RÁPIDA (DOWNLOADER) -->
+    <section id="instalacion" class="py-20 md:py-28 relative">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-cyan/10 border border-brand-cyan/30 text-brand-cyan text-xs font-bold uppercase tracking-wider mb-3">
+            Guía Paso a Paso
+          </span>
+          <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-white tracking-tight">
+            Listo en tu televisor en menos de 2 minutos
+          </h2>
+          <p class="mt-3 text-slate-300 text-base">
+            No necesitas ordenador ni conocimientos técnicos. Todo el proceso se realiza directamente desde el mando a distancia.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+          
+          <!-- Paso 1 -->
+          <div class="relative p-8 rounded-3xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
+            <div>
+              <div class="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center font-display font-black text-2xl text-brand-indigo mb-6 border border-slate-700">
+                1
+              </div>
+              <h3 class="font-display font-bold text-xl text-white mb-3">Abre Downloader</h3>
+              <p class="text-slate-300 text-sm leading-relaxed">
+                En tu Fire TV Stick o Android TV, entra en la tienda oficial de aplicaciones (Amazon Appstore o Google Play Store) y descarga la app gratuita llamada <strong class="text-white">Downloader</strong>.
+              </p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center gap-2 text-xs text-slate-400">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+              Disponible gratis en la tienda oficial
+            </div>
+          </div>
+
+          <!-- Paso 2 -->
+          <div class="relative p-8 rounded-3xl bg-slate-900/80 border border-brand-indigo/40 shadow-glow-indigo/50 flex flex-col justify-between">
+            <div>
+              <div class="w-12 h-12 rounded-2xl bg-brand-indigo text-white flex items-center justify-center font-display font-black text-2xl mb-6 shadow-md shadow-brand-indigo/40">
+                2
+              </div>
+              <h3 class="font-display font-bold text-xl text-white mb-3">Introduce la URL</h3>
+              <p class="text-slate-300 text-sm leading-relaxed mb-4">
+                En el recuadro de dirección URL de Downloader, escribe nuestro enlace directo oficial:
+              </p>
+              
+              <!-- URL Box interactivo -->
+              <div class="p-3.5 rounded-xl bg-black/60 border border-brand-indigo/50 flex items-center justify-between gap-2">
+                <span class="font-mono text-sm font-bold text-brand-cyan select-all" id="dlUrlText">tinyurl.com/teveflipe-tv</span>
+                <button onclick="copyDownloadUrl()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 transition active:scale-95" title="Copiar enlace">
+                  <span id="copyBtnLabel">Copiar</span>
+                </button>
+              </div>
+            </div>
+            <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center gap-2 text-xs text-brand-cyan font-medium">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              Descarga directa del APK más reciente
+            </div>
+          </div>
+
+          <!-- Paso 3 -->
+          <div class="relative p-8 rounded-3xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
+            <div>
+              <div class="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center font-display font-black text-2xl text-brand-indigo mb-6 border border-slate-700">
+                3
+              </div>
+              <h3 class="font-display font-bold text-xl text-white mb-3">Instala y Disfruta</h3>
+              <p class="text-slate-300 text-sm leading-relaxed">
+                Pulsa en <strong class="text-white">Instalar</strong> y abre TeveFlipe. En tu móvil abre Telegram, ve a <em>Ajustes &gt; Dispositivos &gt; Vincular</em> y escanea el código QR en pantalla. ¡Estarás dentro al instante!
+              </p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center gap-2 text-xs text-slate-400">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+              Inicio de sesión seguro sin contraseñas
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Banner de Ayuda -->
+        <div class="mt-12 p-6 rounded-2xl bg-slate-900/50 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+          <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-brand-cyan/15 text-brand-cyan flex items-center justify-center font-bold text-lg shrink-0">
+              💬
+            </div>
+            <div>
+              <h4 class="font-semibold text-white text-sm">¿Dudas durante la instalación en tu tele?</h4>
+              <p class="text-xs text-slate-400">Nuestro equipo te acompaña paso a paso en tiempo real hasta dejarla lista.</p>
+            </div>
+          </div>
+          <a href="https://t.me/+529612193654" target="_blank" rel="noopener" class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition shrink-0">
+            Contactar Soporte en Telegram →
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- SECCIÓN 4: MODELO DE ACCESO Y PLANES (TABLA DE PRECIOS CLARA) -->
+    <section id="planes" class="py-20 md:py-28 relative bg-brand-darker/70 border-t border-brand-border">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-emerald/10 border border-brand-emerald/30 text-brand-emerald text-xs font-bold uppercase tracking-wider mb-3">
+            Sin Sorpresas ni Letras Pequeñas
+          </span>
+          <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-white tracking-tight">
+            Elige cómo deseas disfrutar TeveFlipe
+          </h2>
+          <p class="mt-3 text-slate-300 text-base">
+            Comienza con la prueba de cortesía sin coste alguno o activa el acceso PRO completo para tu hogar.
+          </p>
+        </div>
+
+        <!-- Grid de Planes -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          
+          <!-- Plan 1: Beta / Cortesía -->
+          <div class="p-8 sm:p-10 rounded-3xl bg-slate-900/60 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition">
+            <div>
+              <div class="inline-block px-3 py-1 rounded-lg bg-slate-800 text-slate-300 text-xs font-bold uppercase tracking-wider mb-4">
+                Acceso de Prueba
+              </div>
+              <h3 class="font-display font-extrabold text-2xl text-white mb-2">Plan Beta / Cortesía</h3>
+              <p class="text-slate-400 text-sm mb-6">
+                Diseñado para que compruebes en tu propio televisor la fluidez de reproducción y la calidad de la interfaz.
+              </p>
+
+              <!-- Precio -->
+              <div class="flex items-baseline gap-2 mb-8 pb-6 border-b border-slate-800">
+                <span class="font-display font-black text-5xl text-white">0 €</span>
+                <span class="text-slate-400 text-sm font-medium">/ 3 días de acceso</span>
+              </div>
+
+              <!-- Lista de beneficios -->
+              <ul class="space-y-4 mb-8 text-sm text-slate-300">
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-brand-emerald shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                  <span>Acceso a canales y bibliotecas seleccionadas</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-brand-emerald shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                  <span><strong>Sin tarjeta de crédito</strong> ni suscripción oculta</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-brand-emerald shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                  <span>Reproducción en Full HD con carátulas y sinopsis</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-brand-emerald shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                  <span>Activación automática al iniciar sesión con QR</span>
+                </li>
+              </ul>
+            </div>
+
+            <a href="#instalacion" class="w-full py-4 rounded-xl text-center text-sm font-bold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition">
+              Comenzar Prueba Gratuita →
             </a>
-            <p class="pricing-note" style="margin-top: 8px;">Activo automáticamente al iniciar sesión</p>
           </div>
-        </div>
 
-        <!-- Tarjeta 2: Licencia App Personal -->
-        <div class="pricing-card">
-          <div>
-            <h3 class="pricing-plan">Licencia App</h3>
-            <p class="pricing-plan-desc">Para quienes ya tienen sus propios canales o grupos en Telegram y quieren la mejor app en su TV.</p>
-            
-            <div class="pricing-price">
-              <span class="currency">€</span>
-              <span class="amount">8</span>
-              <span class="period">~160 MXN / pago único</span>
+          <!-- Plan 2: PRO (Destacado) -->
+          <div class="relative p-8 sm:p-10 rounded-3xl bg-gradient-to-b from-slate-900 to-[#121626] border-2 border-brand-indigo shadow-glow-indigo flex flex-col justify-between">
+            <!-- Ribbon -->
+            <div class="absolute -top-3.5 right-8 px-4 py-1 rounded-full bg-gradient-to-r from-brand-indigo to-brand-violet text-[11px] font-black tracking-wider uppercase text-white shadow-md">
+              ⭐ Acceso Recomendado
             </div>
 
-            <ul class="pricing-features">
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span><strong>Licencia de por vida</strong> para tu televisor</span>
-              </li>
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span>Conecta <strong>grupos y canales personales ilimitados</strong></span>
-              </li>
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span>Motor nativo C++ (TDLib) ultrarrápido</span>
-              </li>
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span>Interfaz estilo Netflix optimizada para mando</span>
-              </li>
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span>Actualizaciones automáticas continuas</span>
-              </li>
-              <li style="color: var(--text-muted); font-size: 0.88rem;">
-                <span>ℹ️</span>
-                <span><em>No incluye acceso a los repositorios VIP oficiales</em></span>
-              </li>
-            </ul>
-          </div>
+            <div>
+              <div class="inline-block px-3 py-1 rounded-lg bg-brand-indigo/20 text-brand-cyan text-xs font-bold uppercase tracking-wider mb-4 border border-brand-indigo/30">
+                Experiencia Completa
+              </div>
+              <h3 class="font-display font-extrabold text-2xl text-white mb-2">TeveFlipe PRO</h3>
+              <p class="text-slate-300 text-sm mb-6">
+                Acceso ilimitado a todo el ecosistema de canales y repositorios en la nube organizados permanentemente.
+              </p>
 
-          <div>
-            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-              <a href="https://wa.me/529612624006?text=%C2%A1Hola!%20Quiero%20adquirir%20la%20Licencia%20App%20de%20TeVeFLIPE%20(8%E2%82%AC%20/%20160%20MXN%20pago%20%C3%BAnico)." target="_blank" class="btn btn-whatsapp" style="flex: 1; font-size: 0.9rem; padding: 12px 10px;">
+              <!-- Precios PRO -->
+              <div class="mb-6 pb-6 border-b border-slate-800">
+                <div class="flex items-baseline gap-2">
+                  <span class="font-display font-black text-5xl text-white">4 €</span>
+                  <span class="text-slate-400 text-sm font-medium">/ mes <span class="text-xs text-slate-500">(~80 MXN)</span></span>
+                </div>
+                
+                <!-- Desglose de planes Trimestral / Anual -->
+                <div class="mt-4 p-3 rounded-xl bg-black/40 border border-slate-800 space-y-2 text-xs">
+                  <div class="flex items-center justify-between text-slate-300">
+                    <span>🔥 <strong>Plan Trimestral:</strong> 10 € (~200 MXN)</span>
+                    <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">Ahorro</span>
+                  </div>
+                  <div class="flex items-center justify-between text-slate-300">
+                    <span>👑 <strong>Pase Anual:</strong> 30 € (~600 MXN)</span>
+                    <span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-bold">Máximo Valor</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Beneficios PRO -->
+              <ul class="space-y-4 mb-8 text-sm text-slate-200">
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-brand-cyan shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                  <span><strong>Acceso total e ilimitado</strong> a todos los canales oficiales</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-brand-cyan shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                  <span>Miles de títulos en 1080p y 4K con audio en español</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-brand-cyan shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                  <span>Sincronización diaria con nuevas incorporaciones</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-brand-cyan shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                  <span>Soporte prioritario directo vía Telegram / WhatsApp</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3">
+              <a href="https://t.me/+529612193654" target="_blank" rel="noopener" class="flex-1 py-3.5 rounded-xl text-center text-sm font-bold text-white bg-gradient-to-r from-brand-indigo to-brand-violet hover:from-indigo-500 hover:to-purple-500 shadow-md shadow-brand-indigo/30 transition">
+                ✈️ Solicitar por Telegram
+              </a>
+              <a href="https://wa.me/529612624006?text=%C2%A1Hola!%20Quiero%20activar%20mi%20membres%C3%ADa%20PRO%20de%20TeveFlipe." target="_blank" rel="noopener" class="flex-1 py-3.5 rounded-xl text-center text-sm font-bold text-emerald-400 bg-emerald-950/40 hover:bg-emerald-950/70 border border-emerald-500/40 transition">
                 💬 WhatsApp
               </a>
-              <a href="https://t.me/+529612193654" target="_blank" class="btn btn-telegram" style="flex: 1; font-size: 0.9rem; padding: 12px 10px;">
-                ✈️ Telegram
-              </a>
             </div>
-            <p class="pricing-note">Licencia vitalicia para tu dispositivo</p>
           </div>
+
         </div>
 
-        <!-- Tarjeta 3: Suscripción VIP Catálogo Completo -->
-        <div class="pricing-card featured">
-          <div class="card-ribbon">⭐ CATÁLOGO COMPLETO</div>
-          <div>
-            <h3 class="pricing-plan">Suscripción VIP</h3>
-            <p class="pricing-plan-desc">App completa + Acceso inmediato a nuestros repositorios cerrados de películas y series.</p>
-            
-            <div class="pricing-price">
-              <span class="currency">€</span>
-              <span class="amount">4</span>
-              <span class="period">~80 MXN / mes</span>
-            </div>
-
-            <!-- Desglose de Planes -->
-            <div class="pricing-plans-breakdown">
-              <div class="plan-row">
-                <span class="plan-row-name">📅 Plan Mensual</span>
-                <span class="plan-row-price">4 € <small style="color: var(--text-muted); font-size: 0.75rem;">(~80 MXN)</small></span>
-              </div>
-              <div class="plan-row">
-                <span class="plan-row-name">🔥 Plan Trimestral <span class="plan-tag-save">AHORRA</span></span>
-                <span class="plan-row-price">10 € <small style="color: var(--text-muted); font-size: 0.75rem;">(~200 MXN)</small></span>
-              </div>
-              <div class="plan-row">
-                <span class="plan-row-name">👑 Pase Anual <span class="plan-tag-save">MEJOR VALOR</span></span>
-                <span class="plan-row-price">30 € <small style="color: var(--text-muted); font-size: 0.75rem;">(~600 MXN)</small></span>
-              </div>
-            </div>
-
-            <ul class="pricing-features">
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span><strong>Todo lo de la app incluido</strong></span>
-              </li>
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span><strong>Repositorio de Películas</strong> en 1080p y 4K</span>
-              </li>
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span><strong>+7,500 capítulos</strong> de series organizadas</span>
-              </li>
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span><strong>Canal de Series Españolas</strong> completas</span>
-              </li>
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span>Sincronización diaria con nuevos estrenos</span>
-              </li>
-              <li>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span>Audio en Español y sin cortes</span>
-              </li>
-            </ul>
+        <!-- Mención a la Licencia Software Independiente -->
+        <div class="mt-12 max-w-4xl mx-auto p-6 rounded-2xl bg-slate-900/40 border border-slate-800 text-center flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="text-left">
+            <h4 class="text-sm font-bold text-white">¿Solo quieres la app para tus propios grupos y archivos personales?</h4>
+            <p class="text-xs text-slate-400 mt-1">Disponemos de una <strong>Licencia App Vitalicia (~8 € / ~160 MXN pago único)</strong> para conectar canales propios sin caducidad.</p>
           </div>
-
-          <div>
-            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-              <a href="https://wa.me/529612624006?text=%C2%A1Hola!%20Quiero%20suscribirme%20al%20Plan%20VIP%20de%20TeVeFLIPE." target="_blank" class="btn btn-whatsapp" style="flex: 1; font-size: 0.9rem; padding: 12px 10px;">
-                💬 WhatsApp
-              </a>
-              <a href="https://t.me/+529612193654" target="_blank" class="btn btn-telegram" style="flex: 1; font-size: 0.9rem; padding: 12px 10px;">
-                ✈️ Telegram
-              </a>
-            </div>
-            <p class="pricing-note">Sin permanencia • Cancela o renueva cuando quieras</p>
-          </div>
+          <a href="https://wa.me/529612624006?text=%C2%A1Hola!%20Quiero%20informaci%C3%B3n%20sobre%20la%20Licencia%20App%20personal%20de%20TeveFlipe." target="_blank" rel="noopener" class="px-5 py-2.5 rounded-xl text-xs font-bold text-slate-200 bg-slate-800 hover:bg-slate-700 border border-slate-700 transition shrink-0">
+            Consultar Licencia App →
+          </a>
         </div>
 
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- How It Works Section -->
-  <section id="como-funciona" class="steps-section container">
-    <div class="section-header">
-      <h2 class="section-title">Comienza en Solo 3 Pasos</h2>
-      <p class="section-subtitle">Instalación rápida en menos de 2 minutos sin configuraciones difíciles.</p>
-    </div>
 
-    <div class="steps-grid">
-      <div class="step-card">
-        <div class="step-num">1</div>
-        <h3 class="step-title">Descarga con Downloader</h3>
-        <p class="step-desc">Abre la app <strong>Downloader</strong> en tu Fire TV o Android TV e introduce la URL directa: <code style="color: var(--cyan-accent); background: rgba(0,229,255,0.1); padding: 2px 6px; border-radius: 4px;">tinyurl.com/teveflipe-tv</code></p>
+    <!-- SECCIÓN 5: PREGUNTAS FRECUENTES (FAQ ACORDEÓN INTERACTIVO) -->
+    <section id="faq" class="py-20 md:py-28 relative">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center mb-16">
+          <h2 class="text-xs font-bold uppercase tracking-widest text-brand-cyan mb-3">Resolvemos tus Dudas</h2>
+          <h3 class="font-display font-extrabold text-3xl sm:text-4xl text-white tracking-tight">
+            Preguntas Frecuentes
+          </h3>
+          <p class="mt-3 text-slate-400 text-sm">
+            Todo lo que necesitas saber antes de comenzar a usar TeveFlipe en tu salón.
+          </p>
+        </div>
+
+        <!-- Acordeón FAQ -->
+        <div class="space-y-4" id="faqAccordion">
+          
+          <!-- Item 1 -->
+          <div class="faq-item rounded-2xl bg-slate-900/70 border border-slate-800 overflow-hidden transition-colors">
+            <button class="w-full p-6 text-left flex items-center justify-between gap-4 focus:outline-none" onclick="toggleFaq(this)">
+              <span class="font-display font-bold text-base sm:text-lg text-white">¿En qué dispositivos funciona TeveFlipe?</span>
+              <span class="faq-icon w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 shrink-0 transition-transform duration-300">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </button>
+            <div class="faq-content max-h-0 overflow-hidden px-6 pb-0 opacity-0">
+              <p class="text-slate-300 text-sm leading-relaxed pb-6">
+                TeveFlipe es 100% compatible con cualquier televisor o dispositivo que ejecute el sistema operativo <strong>Android TV o Google TV</strong> (como Xiaomi TV Box &amp; Stick, Mecool, Chromecast con Google TV, Smart TVs Sony, TCL, Philips o Hisense) y con <strong>toda la gama Amazon Fire TV Stick</strong> (Lite, HD, 4K y Max). No es compatible de forma nativa con sistemas cerrados como LG webOS o Samsung Tizen (en esos casos se recomienda conectar un Fire TV Stick o TV Box por HDMI).
+              </p>
+            </div>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="faq-item rounded-2xl bg-slate-900/70 border border-slate-800 overflow-hidden transition-colors">
+            <button class="w-full p-6 text-left flex items-center justify-between gap-4 focus:outline-none" onclick="toggleFaq(this)">
+              <span class="font-display font-bold text-base sm:text-lg text-white">¿Cómo se activa mi cuenta tras la prueba de cortesía?</span>
+              <span class="faq-icon w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 shrink-0 transition-transform duration-300">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </button>
+            <div class="faq-content max-h-0 overflow-hidden px-6 pb-0 opacity-0">
+              <p class="text-slate-300 text-sm leading-relaxed pb-6">
+                La aplicación te indicará de forma clara cuántos días de prueba te restan en el menú de Ajustes. Cuando concluya el periodo de cortesía o cuando decidas pasar al plan PRO, simplemente nos contactas por Telegram o WhatsApp. La renovación se realiza de forma remota en 1 minuto, sin necesidad de reinstalar la aplicación ni reconfigurar nada en tu televisor.
+              </p>
+            </div>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="faq-item rounded-2xl bg-slate-900/70 border border-slate-800 overflow-hidden transition-colors">
+            <button class="w-full p-6 text-left flex items-center justify-between gap-4 focus:outline-none" onclick="toggleFaq(this)">
+              <span class="font-display font-bold text-base sm:text-lg text-white">¿Necesito una conexión a internet muy rápida?</span>
+              <span class="faq-icon w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 shrink-0 transition-transform duration-300">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </button>
+            <div class="faq-content max-h-0 overflow-hidden px-6 pb-0 opacity-0">
+              <p class="text-slate-300 text-sm leading-relaxed pb-6">
+                Recomendamos una velocidad mínima estable de <strong>15 a 20 Mbps</strong> para reproducción fluida en resolución Full HD (1080p). Para contenidos en 4K UHD, lo ideal son 30-50 Mbps. Dado que la aplicación utiliza la red de servidores distribuidos de alta capacidad, el inicio de reproducción es prácticamente instantáneo.
+              </p>
+            </div>
+          </div>
+
+          <!-- Item 4 -->
+          <div class="faq-item rounded-2xl bg-slate-900/70 border border-slate-800 overflow-hidden transition-colors">
+            <button class="w-full p-6 text-left flex items-center justify-between gap-4 focus:outline-none" onclick="toggleFaq(this)">
+              <span class="font-display font-bold text-base sm:text-lg text-white">¿Cómo inicio sesión sin tener que teclear con el mando?</span>
+              <span class="faq-icon w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 shrink-0 transition-transform duration-300">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </button>
+            <div class="faq-content max-h-0 overflow-hidden px-6 pb-0 opacity-0">
+              <p class="text-slate-300 text-sm leading-relaxed pb-6">
+                El proceso es exactamente igual al de Telegram Desktop o Telegram Web: al abrir la app en la tele, aparece un código QR. Abres tu Telegram en el móvil, vas a <em>Ajustes &gt; Dispositivos &gt; Vincular dispositivo</em> y enfocas la cámara al televisor. La sesión se vincula al instante sin escribir contraseñas ni números telefónicos en la tele.
+              </p>
+            </div>
+          </div>
+
+          <!-- Item 5 -->
+          <div class="faq-item rounded-2xl bg-slate-900/70 border border-slate-800 overflow-hidden transition-colors">
+            <button class="w-full p-6 text-left flex items-center justify-between gap-4 focus:outline-none" onclick="toggleFaq(this)">
+              <span class="font-display font-bold text-base sm:text-lg text-white">¿Cómo se actualiza la app cuando hay mejoras?</span>
+              <span class="faq-icon w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 shrink-0 transition-transform duration-300">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </button>
+            <div class="faq-content max-h-0 overflow-hidden px-6 pb-0 opacity-0">
+              <p class="text-slate-300 text-sm leading-relaxed pb-6">
+                TeveFlipe incorpora un sistema de actualización OTA (Over-The-Air) nativo. Cuando liberamos una nueva versión con optimizaciones o nuevas funciones, la app te avisará automáticamente con un diálogo en pantalla y podrás actualizarla pulsando un solo botón en tu mando, sin repetir el tutorial de Downloader.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- SECCIÓN 6: FOOTER (PIE DE PÁGINA COMERCIAL & BLINDAJE LEGAL) -->
+  <footer class="bg-brand-darker border-t border-brand-border py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="flex flex-col md:flex-row items-center justify-between gap-8 pb-10 border-b border-slate-800/80">
+        <!-- Logo & Marca -->
+        <div class="flex items-center gap-3">
+          <img src="assets/icon.png" alt="TeveFlipe" class="w-10 h-10 rounded-xl">
+          <div>
+            <span class="font-display font-extrabold text-xl text-white">TeveFlipe</span>
+            <p class="text-xs text-slate-400">Cliente Multimedia Avanzado para TV</p>
+          </div>
+        </div>
+
+        <!-- Enlaces Rápidos y Soporte -->
+        <div class="flex flex-wrap items-center justify-center gap-6 text-xs font-semibold text-slate-300">
+          <a href="https://tinyurl.com/teveflipe-tv" class="hover:text-brand-cyan transition">Descargar APK</a>
+          <a href="https://t.me/+529612193654" target="_blank" rel="noopener" class="hover:text-brand-cyan transition">Canal de Telegram</a>
+          <a href="https://wa.me/529612624006" target="_blank" rel="noopener" class="hover:text-brand-cyan transition">Atención WhatsApp</a>
+          <a href="admin.html" class="text-slate-600 hover:text-slate-400 transition" title="Gestión interna de sesiones">Panel Admin</a>
+        </div>
       </div>
 
-      <div class="step-card">
-        <div class="step-num">2</div>
-        <h3 class="step-title">Vincula con QR</h3>
-        <p class="step-desc">Abre TeVeFLIPE. En tu móvil ve a <em>Telegram &gt; Ajustes &gt; Dispositivos &gt; Vincular</em> y escanea el código que aparece en tu tele.</p>
+      <!-- Aviso Legal y Blindaje de Marca -->
+      <div class="pt-8 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+        <p class="text-[11px] leading-relaxed text-slate-400 max-w-3xl">
+          <strong>Aviso Legal y Limitación de Responsabilidad:</strong> TeveFlipe es una herramienta de software independiente desarrollada como cliente y reproductor de gestión multimedia para la API de Telegram. TeveFlipe no aloja, retransmite, modifica ni almacena archivos audiovisuales propios. El usuario es el único responsable de los canales, repositorios o contenidos en la nube a los que decide vincular su cuenta. Todas las marcas registradas pertenecen a sus respectivos titulares.
+        </p>
+        <p class="text-[11px] text-slate-400 shrink-0">
+          © 2026 TeveFlipe. Todos los derechos reservados.
+        </p>
       </div>
 
-      <div class="step-card">
-        <div class="step-num">3</div>
-        <h3 class="step-title">¡Disfruta al Instante!</h3>
-        <p class="step-desc">Entrarás de inmediato a disfrutar de <strong>7 días de prueba gratis</strong> o puedes escribirnos para activar tu Licencia App o Suscripción VIP.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- FAQ Section -->
-  <section id="faq" class="faq-section container">
-    <div class="section-header">
-      <h2 class="section-title">Preguntas Frecuentes</h2>
-    </div>
-
-    <div class="faq-item">
-      <h4 class="faq-q">¿Cuál es la diferencia entre la Licencia App y la Suscripción VIP?</h4>
-      <p class="faq-a">La <strong>Licencia App (8 € / ~160 MXN pago único)</strong> es para quienes ya tienen sus propios canales o grupos en Telegram y quieren la mejor aplicación en su TV de por vida con sus contenidos personales. La <strong>Suscripción VIP (desde 4 € / ~80 MXN al mes)</strong> te da acceso completo e ilimitado a nuestros 3 repositorios oficiales con miles de películas 1080p, series completas y estrenos diarios organizados.</p>
-    </div>
-
-    <div class="faq-item">
-      <h4 class="faq-q">¿Cómo pruebo la aplicación antes de pagar?</h4>
-      <p class="faq-a">Es totalmente gratis. Descarga la app en tu televisor con Downloader escribiendo <strong style="color: var(--cyan-accent);">tinyurl.com/teveflipe-tv</strong>, escanea el código QR con tu Telegram y se activará automáticamente tu <strong>Modo Demo de 7 días</strong> con contenido de muestra sin necesidad de meter tarjeta ni datos de pago.</p>
-    </div>
-
-    <div class="faq-item">
-      <h4 class="faq-q">¿En qué dispositivos puedo usar TeVeFLIPE?</h4>
-      <p class="faq-a">Es compatible con cualquier televisor o dispositivo con Android TV o Google TV (Xiaomi Mi Box, Chromecast, Smart TVs Sony, TCL, Hisense, etc.), Amazon Fire TV Stick (todos los modelos) y Proyectores Android.</p>
-    </div>
-
-    <div class="faq-item">
-      <h4 class="faq-q">¿Qué métodos de pago aceptan?</h4>
-      <p class="faq-a">Aceptamos transferencias bancarias directas (Bizum, Transferencia SEPA en Europa, SPEI en México), depósitos en OXXO, Mercado Pago y PayPal.</p>
-    </div>
-
-    <div class="faq-item">
-      <h4 class="faq-q">¿Cómo se actualiza la aplicación?</h4>
-      <p class="faq-a">La aplicación cuenta con actualizador automático integrado. Cuando publiquemos una nueva versión, te saldrá un aviso en pantalla y se actualizará sola con un clic sin que tengas que volver a descargar nada.</p>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer>
-    <div class="container footer-content">
-      <div class="brand">
-        <img src="assets/icon.png" alt="TeVeFLIPE">
-        <span class="brand-name">TeVeFLIPE</span>
-      </div>
-      <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin-top: 6px;">
-        <a href="https://wa.me/529612624006" target="_blank" style="color: #25d366; text-decoration: none; font-weight: 700; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 6px;">
-          💬 WhatsApp: +52 961 262 4006
-        </a>
-        <a href="https://t.me/+529612193654" target="_blank" style="color: #00e5ff; text-decoration: none; font-weight: 700; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 6px;">
-          ✈️ Telegram: +52 961 219 3654
-        </a>
-      </div>
-      <p class="footer-copy">© 2026 TeVeFLIPE. Todos los derechos reservados. Diseñado para Android TV, Fire TV y Proyectores. • <a href="admin.html" style="color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.82rem;">Panel de Control</a></p>
     </div>
   </footer>
+
+  <!-- LÓGICA JAVASCRIPT LIGERA -->
+  <script>
+    // Acordeón interactivo para Preguntas Frecuentes
+    function toggleFaq(button) {
+      const item = button.closest('.faq-item');
+      const content = item.querySelector('.faq-content');
+      const icon = item.querySelector('.faq-icon');
+      const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
+
+      // Cerrar los demás acordeones abiertos
+      document.querySelectorAll('.faq-item').forEach(otherItem => {
+        if (otherItem !== item) {
+          const otherContent = otherItem.querySelector('.faq-content');
+          const otherIcon = otherItem.querySelector('.faq-icon');
+          otherContent.style.maxHeight = '0px';
+          otherContent.style.opacity = '0';
+          otherIcon.style.transform = 'rotate(0deg)';
+          otherItem.classList.remove('border-brand-indigo/40');
+        }
+      });
+
+      // Alternar estado del elemento actual
+      if (isOpen) {
+        content.style.maxHeight = '0px';
+        content.style.opacity = '0';
+        icon.style.transform = 'rotate(0deg)';
+        item.classList.remove('border-brand-indigo/40');
+      } else {
+        content.style.maxHeight = content.scrollHeight + 'px';
+        content.style.opacity = '1';
+        icon.style.transform = 'rotate(180deg)';
+        item.classList.add('border-brand-indigo/40');
+      }
+    }
+
+    // Copiar URL de Downloader con feedback visual
+    function copyDownloadUrl() {
+      const url = "tinyurl.com/teveflipe-tv";
+      navigator.clipboard.writeText(url).then(() => {
+        const btnLabel = document.getElementById('copyBtnLabel');
+        btnLabel.textContent = "¡Copiado!";
+        btnLabel.classList.add('text-emerald-400');
+        setTimeout(() => {
+          btnLabel.textContent = "Copiar";
+          btnLabel.classList.remove('text-emerald-400');
+        }, 2500);
+      }).catch(err => {
+        console.error("Error al copiar:", err);
+      });
+    }
+  </script>
 
 </body>
 </html>
