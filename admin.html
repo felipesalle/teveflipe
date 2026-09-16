@@ -2,12 +2,19 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TeVeFLIPE | Panel de Administración y Clientes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TeVeFLIPE | Panel de Administración y Canales</title>
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Firebase SDKs Compat -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
   <style>
     :root {
       --bg-dark: #0a0a12;
@@ -17,6 +24,9 @@
       --purple-glow: rgba(124, 77, 255, 0.4);
       --cyan-accent: #00e5ff;
       --cyan-glow: rgba(0, 229, 255, 0.35);
+      --green-accent: #22c55e;
+      --amber-accent: #f59e0b;
+      --red-accent: #ef4444;
       --text-white: #ffffff;
       --text-muted: #a0a0b8;
       --border-color: rgba(255, 255, 255, 0.08);
@@ -36,18 +46,20 @@
       font-family: var(--font-body);
       line-height: 1.6;
       padding-bottom: 60px;
+      min-height: 100vh;
     }
 
     .container {
       max-width: 1320px;
       margin: 0 auto;
-      padding: 0 24px;
+      padding: 0 20px;
     }
 
+    /* HEADER */
     header {
-      padding: 20px 0;
+      padding: 16px 0;
       border-bottom: 1px solid var(--border-color);
-      background: rgba(10, 10, 18, 0.85);
+      background: rgba(10, 10, 18, 0.9);
       backdrop-filter: blur(12px);
       position: sticky;
       top: 0;
@@ -58,6 +70,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 16px;
     }
 
     .brand {
@@ -84,6 +97,13 @@
       -webkit-text-fill-color: transparent;
     }
 
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
     .badge-admin {
       background: rgba(0, 229, 255, 0.15);
       color: var(--cyan-accent);
@@ -95,79 +115,194 @@
       letter-spacing: 0.5px;
     }
 
+    .user-badge-header {
+      background: rgba(124, 77, 255, 0.15);
+      color: #c4b5fd;
+      border: 1px solid rgba(124, 77, 255, 0.35);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btn-logout {
+      background: rgba(239, 68, 68, 0.15);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      padding: 6px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover {
+      background: #ef4444;
+      color: white;
+    }
+
+    /* PESTAÑAS PRINCIPALES */
+    .tabs-nav {
+      display: flex;
+      gap: 12px;
+      margin: 24px 0 20px 0;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      transition: all 0.2s;
+      min-height: 44px;
+    }
+
+    .tab-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, rgba(124, 77, 255, 0.3) 0%, rgba(0, 229, 255, 0.2) 100%);
+      border-color: var(--purple-primary);
+      color: white;
+      box-shadow: 0 0 15px var(--purple-glow);
+    }
+
+    /* METRICAS */
     .metrics-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-      margin: 32px 0;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
     }
 
     .metric-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: 16px;
-      padding: 22px;
+      padding: 18px 20px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      transition: transform 0.2s, border-color 0.2s;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     }
 
-    .metric-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(255, 255, 255, 0.15);
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--purple-primary);
     }
+
+    .metric-card.green::before { background: var(--green-accent); }
+    .metric-card.amber::before { background: var(--amber-accent); }
+    .metric-card.cyan::before { background: var(--cyan-accent); }
+    .metric-card.red::before { background: var(--red-accent); }
 
     .metric-label {
+      font-size: 0.85rem;
+      font-weight: 600;
       color: var(--text-muted);
-      font-size: 0.82rem;
-      font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
 
     .metric-val {
       font-family: var(--font-title);
-      font-size: 2.2rem;
+      font-size: 2rem;
       font-weight: 800;
-      color: var(--cyan-accent);
+      color: white;
+      line-height: 1.1;
     }
 
+    /* BUSCADOR Y FILTROS */
     .search-filter-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 18px 20px;
+      margin-bottom: 24px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      margin-bottom: 24px;
+      gap: 14px;
     }
 
     .search-bar-row {
       display: flex;
-      gap: 16px;
+      gap: 12px;
       align-items: center;
-      flex-wrap: wrap;
     }
 
     .search-input {
       flex: 1;
-      min-width: 280px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
+      background: #0d0d17;
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 12px;
       padding: 12px 18px;
       color: white;
       font-size: 0.95rem;
       font-family: inherit;
       outline: none;
+      transition: all 0.2s;
+      min-height: 44px;
     }
 
     .search-input:focus {
-      border-color: var(--cyan-accent);
-      box-shadow: 0 0 10px var(--cyan-glow);
+      border-color: var(--purple-primary);
+      box-shadow: 0 0 12px var(--purple-glow);
+    }
+
+    .btn-action {
+      background: linear-gradient(135deg, var(--purple-primary) 0%, #6200ea 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      transition: all 0.2s;
+      min-height: 44px;
+    }
+
+    .btn-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px var(--purple-glow);
     }
 
     .filter-pills {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
       align-items: center;
     }
@@ -176,12 +311,13 @@
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-color);
       color: var(--text-muted);
-      padding: 7px 16px;
+      padding: 6px 14px;
       border-radius: 20px;
       font-size: 0.85rem;
-      font-weight: 700;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.15s ease;
+      min-height: 38px;
     }
 
     .filter-btn:hover {
@@ -190,59 +326,44 @@
     }
 
     .filter-btn.active {
-      background: rgba(124, 77, 255, 0.25);
+      background: var(--purple-primary);
       border-color: var(--purple-primary);
       color: white;
-      box-shadow: 0 0 12px var(--purple-glow);
+      box-shadow: 0 0 10px var(--purple-glow);
     }
 
-    .btn-refresh {
-      background: linear-gradient(135deg, var(--purple-primary), #6d28d9);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 12px 20px;
-      font-weight: 700;
-      font-size: 0.92rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: opacity 0.2s;
-    }
-
-    .btn-refresh:hover {
-      opacity: 0.9;
-    }
-
+    /* TABLAS */
     .table-container {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
-      border-radius: 18px;
+      border-radius: 16px;
       overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      box-shadow: 0 4px 25px rgba(0,0,0,0.4);
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
       text-align: left;
-      font-size: 0.92rem;
+      min-width: 800px;
     }
 
     th {
       background: rgba(255, 255, 255, 0.03);
-      padding: 16px 18px;
-      color: var(--text-muted);
+      padding: 14px 18px;
+      font-size: 0.8rem;
       font-weight: 700;
-      border-bottom: 1px solid var(--border-color);
+      color: var(--text-muted);
       text-transform: uppercase;
-      font-size: 0.76rem;
       letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border-color);
     }
 
     td {
-      padding: 16px 18px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 0.9rem;
       vertical-align: middle;
     }
 
@@ -250,99 +371,81 @@
       background: rgba(255, 255, 255, 0.02);
     }
 
-    .user-pill {
+    /* FORMULARIOS (GESTOR DE CANALES) */
+    .card-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .card-title {
+      font-family: var(--font-title);
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 16px;
       display: flex;
-      flex-direction: column;
-    }
-
-    .user-name {
-      font-weight: 700;
+      align-items: center;
+      gap: 10px;
       color: white;
     }
 
-    .user-handle {
-      font-size: 0.82rem;
-      color: var(--cyan-accent);
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      align-items: end;
     }
 
-    .device-pill {
-      font-weight: 600;
-      color: #e2e2ee;
-    }
-
-    .device-id {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      font-family: monospace;
-    }
-
-    .date-text {
-      color: var(--text-muted);
-      font-size: 0.82rem;
-    }
-
-    /* Selectores de Plan y Estado */
-    .role-select {
-      background: #18182b;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: white;
-      padding: 7px 12px;
-      border-radius: 10px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      outline: none;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .role-select:focus {
-      border-color: var(--cyan-accent);
-    }
-
-    .role-select.role-normal {
-      background: rgba(96, 165, 250, 0.15);
-      border-color: rgba(96, 165, 250, 0.4);
-      color: #93c5fd;
-    }
-
-    .role-select.role-donador, .role-select.role-vip {
-      background: rgba(245, 158, 11, 0.15);
-      border-color: rgba(245, 158, 11, 0.4);
-      color: #fbbf24;
-    }
-
-    .role-select.role-admin {
-      background: rgba(0, 229, 255, 0.15);
-      border-color: rgba(0, 229, 255, 0.4);
-      color: var(--cyan-accent);
-    }
-
-    .role-select.role-app {
-      background: rgba(59, 130, 246, 0.15);
-      border-color: rgba(59, 130, 246, 0.4);
-      color: #60a5fa;
-    }
-
-    .role-select.role-demo {
-      background: rgba(245, 158, 11, 0.12);
-      border-color: rgba(245, 158, 11, 0.4);
-      color: #fbbf24;
-    }
-
-    .role-select.role-cliente {
-      background: rgba(34, 197, 94, 0.12);
-      border-color: rgba(34, 197, 94, 0.4);
-      color: #4ade80;
-    }
-
-    /* Vencimiento y Botones Rápidos de Renovación */
-    .sub-wrap {
+    .form-group {
       display: flex;
       flex-direction: column;
       gap: 6px;
     }
 
-    .sub-badge {
+    .form-group label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .form-control {
+      background: #0d0d17;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: white;
+      font-size: 0.9rem;
+      outline: none;
+      min-height: 44px;
+      font-family: inherit;
+    }
+
+    .form-control:focus {
+      border-color: var(--cyan-accent);
+      box-shadow: 0 0 10px var(--cyan-glow);
+    }
+
+    .form-checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      color: #e2e2ee;
+      min-height: 44px;
+    }
+
+    .form-checkbox-label input {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--purple-primary);
+    }
+
+    /* BADGES Y PILLS */
+    .badge-pill {
       display: inline-flex;
       align-items: center;
       gap: 5px;
@@ -350,108 +453,176 @@
       border-radius: 8px;
       font-size: 0.8rem;
       font-weight: 700;
-      width: fit-content;
       white-space: nowrap;
     }
 
-    .sub-active {
-      background: rgba(34, 197, 94, 0.15);
-      color: #4ade80;
-      border: 1px solid rgba(34, 197, 94, 0.3);
-    }
+    .badge-cat-peliculas { background: rgba(124, 77, 255, 0.18); color: #c4b5fd; border: 1px solid rgba(124, 77, 255, 0.35); }
+    .badge-cat-series { background: rgba(0, 229, 255, 0.15); color: var(--cyan-accent); border: 1px solid rgba(0, 229, 255, 0.35); }
+    .badge-cat-kids { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); }
+    .badge-cat-clasicos { background: rgba(236, 72, 153, 0.18); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.35); }
+    .badge-cat-general { background: rgba(255, 255, 255, 0.1); color: #e2e2ee; border: 1px solid rgba(255, 255, 255, 0.2); }
 
-    .sub-warning {
-      background: rgba(245, 158, 11, 0.15);
-      color: #fbbf24;
-      border: 1px solid rgba(245, 158, 11, 0.3);
-    }
+    .badge-active { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.35); }
+    .badge-paused { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); }
 
-    .sub-expired {
-      background: rgba(239, 68, 68, 0.15);
-      color: #f87171;
-      border: 1px solid rgba(239, 68, 68, 0.3);
-    }
+    .role-donador { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .role-admin { background: rgba(0, 229, 255, 0.15); color: var(--cyan-accent); border: 1px solid rgba(0, 229, 255, 0.3); }
+    .role-normal { background: rgba(255, 255, 255, 0.08); color: #e2e2ee; border: 1px solid rgba(255, 255, 255, 0.15); }
 
-    .sub-app {
-      background: rgba(59, 130, 246, 0.15);
-      color: #60a5fa;
-      border: 1px solid rgba(59, 130, 246, 0.3);
-    }
-
-    .sub-vip {
-      background: rgba(0, 229, 255, 0.15);
-      color: var(--cyan-accent);
-      border: 1px solid rgba(0, 229, 255, 0.3);
-    }
-
-    .sub-demo {
-      background: rgba(245, 158, 11, 0.12);
-      color: #fbbf24;
-      border: 1px solid rgba(245, 158, 11, 0.25);
-    }
-
-    .sub-empty {
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--text-muted);
-      border: 1px dashed rgba(255, 255, 255, 0.15);
-    }
-
-    .quick-add-wrap {
-      display: flex;
-      gap: 4px;
-      align-items: center;
-    }
-
-    .btn-renew {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #e2e2ee;
-      padding: 3px 7px;
-      border-radius: 6px;
-      font-size: 0.75rem;
+    .btn-sm {
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
       font-weight: 700;
       cursor: pointer;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
       transition: all 0.15s ease;
+      min-height: 36px;
     }
 
-    .btn-renew:hover {
-      background: var(--purple-primary);
-      border-color: var(--purple-primary);
-      color: white;
-      transform: translateY(-1px);
+    .btn-pause {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: rgba(245, 158, 11, 0.35);
+      color: #fbbf24;
     }
+    .btn-pause:hover { background: #f59e0b; color: black; }
 
-    .btn-renew-edit {
-      padding: 3px 5px;
+    .btn-resume {
+      background: rgba(34, 197, 94, 0.15);
+      border-color: rgba(34, 197, 94, 0.35);
+      color: #4ade80;
     }
+    .btn-resume:hover { background: #22c55e; color: white; }
 
-    .status-select {
+    .btn-delete {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.35);
+      color: #f87171;
+    }
+    .btn-delete:hover { background: #ef4444; color: white; }
+
+    .role-select {
       background: #18182b;
       border: 1px solid rgba(255, 255, 255, 0.15);
       color: white;
-      padding: 7px 12px;
-      border-radius: 10px;
+      padding: 6px 10px;
+      border-radius: 8px;
       font-size: 0.85rem;
-      font-weight: 700;
+      font-weight: 600;
       outline: none;
       cursor: pointer;
-      transition: all 0.2s;
     }
 
-    .status-select.status-activo {
-      background: rgba(34, 197, 94, 0.12);
-      border-color: rgba(34, 197, 94, 0.4);
-      color: #4ade80;
+    /* PANTALLA DE LOGIN */
+    #loginOverlay {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+      padding: 20px;
     }
 
-    .status-select.status-expirado {
+    .login-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 40px 32px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--purple-primary), var(--cyan-accent));
+    }
+
+    .login-logo {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 20px var(--purple-glow);
+    }
+
+    .login-title {
+      font-family: var(--font-title);
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .login-subtitle {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      text-align: left;
+    }
+
+    .login-error {
       background: rgba(239, 68, 68, 0.15);
-      border-color: rgba(239, 68, 68, 0.4);
-      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      display: none;
+    }
+
+    /* TOAST */
+    #toastContainer {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 90vw;
+    }
+
+    .toast {
+      background: #1c1c32;
+      border: 1px solid var(--purple-primary);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      animation: slideIn 0.3s ease forwards;
+    }
+
+    .toast.success { border-color: #22c55e; }
+    .toast.error { border-color: #ef4444; }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
     }
 
     .empty-state {
-      padding: 60px 20px;
+      padding: 50px 20px;
       text-align: center;
       color: var(--text-muted);
     }
@@ -470,450 +641,715 @@
       to { transform: rotate(360deg); }
     }
 
-    /* Notificación flotante Toast */
-    #toastContainer {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      z-index: 1000;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+    /* REGLAS MÓVILES (<768px) */
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 14px;
+      }
+      
+      .nav-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
 
-    .toast {
-      background: #1c1c32;
-      border: 1px solid var(--purple-primary);
-      color: white;
-      padding: 12px 20px;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      animation: slideIn 0.3s ease forwards;
-    }
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
 
-    .toast.success {
-      border-color: #22c55e;
-    }
+      .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
 
-    .toast.error {
-      border-color: #ef4444;
-    }
+      .metric-card {
+        padding: 14px;
+      }
 
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
+      .metric-val {
+        font-size: 1.5rem;
+      }
+
+      .search-bar-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .login-card {
+        padding: 28px 20px;
+      }
     }
   </style>
 </head>
 <body>
 
+  <!-- CABECERA -->
   <header>
     <div class="container nav-bar">
       <a href="index.html" class="brand">
         <img src="assets/icon.png" alt="TeVeFLIPE">
         <span class="brand-name">TeVeFLIPE</span>
       </a>
-      <div style="display: flex; align-items: center; gap: 14px;">
+      <div class="header-actions">
         <span class="badge-admin">🔒 Panel de Control</span>
-        <a href="index.html" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 600;">← Volver al Portal</a>
+        <span id="authEmailBadge" class="user-badge-header" style="display: none;">admin@teveflipe</span>
+        <button id="btnLogout" class="btn-logout" style="display: none;" onclick="logout()">
+          🚪 Salir
+        </button>
+        <a href="index.html" style="color: var(--text-muted); text-decoration: none; font-size: 0.85rem; font-weight: 600;">← Portal</a>
       </div>
     </div>
   </header>
 
-  <main class="container">
-    <div class="metrics-grid">
-      <div class="metric-card">
-        <span class="metric-label">Usuarios Totales</span>
-        <span class="metric-val" id="totalUsers">-</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-label">⚪ Comunitarios</span>
-        <span class="metric-val" style="color: #60a5fa;" id="totalNormal">-</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-label">⭐ Donadores VIP</span>
-        <span class="metric-val" style="color: #fbbf24;" id="totalDonadores">-</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-label">👑 Administradores</span>
-        <span class="metric-val" style="color: var(--cyan-accent);" id="totalAdmins">-</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-label">⛔ Inactivos / Bloqueados</span>
-        <span class="metric-val" style="color: #f87171;" id="totalExpired">-</span>
-      </div>
-    </div>
+  <!-- PANTALLA DE LOGIN (Si no está autenticado) -->
+  <div id="loginOverlay">
+    <div class="login-card">
+      <img src="assets/icon.png" alt="TeVeFLIPE" class="login-logo">
+      <h2 class="login-title">Acceso al Panel</h2>
+      <p class="login-subtitle">Introduce tus credenciales de administrador</p>
+      
+      <div id="loginError" class="login-error"></div>
 
-    <div class="search-filter-wrap">
-      <div class="search-bar-row">
-        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Buscar por nombre, @username, ID de Telegram o dispositivo...">
-        <button class="btn-refresh" onclick="fetchUsers()">
-          <span id="refreshIcon">🔄</span> Actualizar Datos
+      <form class="login-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="loginEmail">Correo Electrónico</label>
+          <input type="email" id="loginEmail" class="form-control" placeholder="admin@teveflipe.com" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Contraseña</label>
+          <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" id="btnLoginSubmit" class="btn-action" style="width: 100%; justify-content: center; margin-top: 8px;">
+          🔑 Iniciar Sesión
         </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- APLICACIÓN PRINCIPAL (Visible tras Login) -->
+  <main id="adminApp" class="container" style="display: none;">
+    <!-- Selector de Pestañas -->
+    <div class="tabs-nav">
+      <button id="tabBtnUsers" class="tab-btn active" onclick="switchTab('users')">
+        👥 Usuarios y Dispositivos
+      </button>
+      <button id="tabBtnChannels" class="tab-btn" onclick="switchTab('channels')">
+        📺 Gestor de Canales (Comunitarios & VIP)
+      </button>
+    </div>
+
+    <!-- SECCIÓN 1: USUARIOS Y DISPOSITIVOS -->
+    <div id="sectionUsers">
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <span class="metric-label">Usuarios Totales</span>
+          <span class="metric-val" id="totalUsers">-</span>
+        </div>
+        <div class="metric-card cyan">
+          <span class="metric-label">⚪ Comunitarios</span>
+          <span class="metric-val" style="color: #60a5fa;" id="totalNormal">-</span>
+        </div>
+        <div class="metric-card amber">
+          <span class="metric-label">⭐ Donadores VIP</span>
+          <span class="metric-val" style="color: #fbbf24;" id="totalDonadores">-</span>
+        </div>
+        <div class="metric-card green">
+          <span class="metric-label">👑 Administradores</span>
+          <span class="metric-val" style="color: var(--cyan-accent);" id="totalAdmins">-</span>
+        </div>
+        <div class="metric-card red">
+          <span class="metric-label">⛔ Inactivos</span>
+          <span class="metric-val" style="color: #f87171;" id="totalExpired">-</span>
+        </div>
       </div>
 
-      <div class="filter-pills">
-        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700;">Filtrar por:</span>
-        <button class="filter-btn active" onclick="setFilter('todos', this)">Todos</button>
-        <button class="filter-btn" onclick="setFilter('normal', this)">⚪ Solo Comunitarios</button>
-        <button class="filter-btn" onclick="setFilter('donador', this)">⭐ Solo Donadores VIP</button>
-        <button class="filter-btn" onclick="setFilter('admin', this)">👑 Administradores</button>
-        <button class="filter-btn" onclick="setFilter('inactivo', this)">⛔ Inactivos / Bloqueados</button>
+      <div class="search-filter-wrap">
+        <div class="search-bar-row">
+          <input type="text" id="searchInput" class="search-input" placeholder="🔍 Buscar por nombre, @username, ID de Telegram o dispositivo...">
+          <button class="btn-action" onclick="fetchUsers()">
+            <span id="refreshIcon">🔄</span> Actualizar
+          </button>
+        </div>
+
+        <div class="filter-pills">
+          <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700;">Filtrar:</span>
+          <button class="filter-btn active" onclick="setUserFilter('todos', this)">Todos</button>
+          <button class="filter-btn" onclick="setUserFilter('normal', this)">⚪ Comunitarios</button>
+          <button class="filter-btn" onclick="setUserFilter('donador', this)">⭐ Donadores VIP</button>
+          <button class="filter-btn" onclick="setUserFilter('admin', this)">👑 Admins</button>
+          <button class="filter-btn" onclick="setUserFilter('inactivo', this)">⛔ Inactivos</button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>ID Telegram</th>
+              <th>Dispositivo</th>
+              <th>Versión App</th>
+              <th>Último Acceso</th>
+              <th>Rol Asignado</th>
+              <th>Beneficio</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody">
+            <tr>
+              <td colspan="8" class="empty-state">
+                <div class="loading-spinner"></div>
+                <p style="margin-top: 12px;">Cargando sesiones...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Usuario</th>
-            <th>ID Telegram</th>
-            <th>Dispositivo</th>
-            <th>Versión App</th>
-            <th>Último Acceso</th>
-            <th>Rango / Rol Asignado</th>
-            <th>Beneficio / Canales</th>
-            <th>Estado de Cuenta</th>
-          </tr>
-        </thead>
-        <tbody id="usersTableBody">
-          <tr>
-            <td colspan="8" class="empty-state">
-              <div class="loading-spinner"></div>
-              <p style="margin-top: 12px;">Cargando sesiones desde Firebase Realtime Database...</p>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- SECCIÓN 2: GESTOR DE CANALES -->
+    <div id="sectionChannels" style="display: none;">
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <span class="metric-label">Total Canales</span>
+          <span class="metric-val" id="totalChannelsCount">0</span>
+        </div>
+        <div class="metric-card green">
+          <span class="metric-label">🟢 Activos en App</span>
+          <span class="metric-val" style="color: #4ade80;" id="activeChannelsCount">0</span>
+        </div>
+        <div class="metric-card cyan">
+          <span class="metric-label">🎬 Películas</span>
+          <span class="metric-val" style="color: var(--cyan-accent);" id="moviesChannelsCount">0</span>
+        </div>
+        <div class="metric-card amber">
+          <span class="metric-label">📺 Series</span>
+          <span class="metric-val" style="color: #fbbf24;" id="seriesChannelsCount">0</span>
+        </div>
+      </div>
+
+      <!-- Formulario Añadir / Editar Canal -->
+      <div class="card-panel">
+        <h3 class="card-title">
+          <span id="channelFormTitleIcon">➕</span>
+          <span id="channelFormTitleText">Añadir Nuevo Canal Oficial / Comunitario</span>
+        </h3>
+        
+        <form id="channelForm" onsubmit="handleSaveChannel(event)">
+          <input type="hidden" id="channelDocKey" value="">
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="chName">Nombre del Canal / Repositorio *</label>
+              <input type="text" id="chName" class="form-control" placeholder="Ej: Películas Clásicas" required>
+            </div>
+            <div class="form-group">
+              <label for="chId">ID de Telegram * (con -100 si es supergrupo)</label>
+              <input type="text" id="chId" class="form-control" placeholder="Ej: -1004388643765" required>
+            </div>
+            <div class="form-group">
+              <label for="chInvite">Enlace de Invitación Permanente *</label>
+              <input type="url" id="chInvite" class="form-control" placeholder="https://t.me/+..." required>
+            </div>
+            <div class="form-group">
+              <label for="chCategory">Categoría</label>
+              <select id="chCategory" class="form-control">
+                <option value="peliculas">🎬 Películas</option>
+                <option value="series">📺 Series</option>
+                <option value="kids">👶 Kids / Infantil</option>
+                <option value="clasicos">🏛️ Clásicos</option>
+                <option value="general">🌐 General</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-checkbox-label">
+                <input type="checkbox" id="chIsForum">
+                <span>¿Es grupo con Temas / Foros?</span>
+              </label>
+            </div>
+            <div class="form-group" style="display: flex; gap: 8px; flex-direction: row;">
+              <button type="submit" id="btnSaveChannel" class="btn-action" style="flex: 1; justify-content: center;">
+                💾 Guardar Canal
+              </button>
+              <button type="button" id="btnCancelEdit" class="filter-btn" style="display: none; height: 44px;" onclick="resetChannelForm()">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Tabla de Canales -->
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Canal</th>
+              <th>ID Telegram</th>
+              <th>Categoría</th>
+              <th>Enlace de Invitación</th>
+              <th>Foro/Temas</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="channelsTableBody">
+            <tr>
+              <td colspan="7" class="empty-state">
+                <div class="loading-spinner"></div>
+                <p style="margin-top: 12px;">Cargando canales desde Firebase...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </main>
 
   <div id="toastContainer"></div>
 
   <script>
-    const FIREBASE_BASE_URL = "https://teveflipe-default-rtdb.firebaseio.com/users";
-    let allUsers = [];
-    let currentFilter = 'todos';
+    // CONFIGURACIÓN DE FIREBASE
+    const firebaseConfig = {
+      apiKey: "AIzaSyCBbM-BIZywjb85vf3MRUZhrxYhX5Umczc",
+      authDomain: "teveflipe.firebaseapp.com",
+      databaseURL: "https://teveflipe-default-rtdb.firebaseio.com",
+      projectId: "teveflipe",
+      storageBucket: "teveflipe.firebasestorage.app"
+    };
 
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+
+    const auth = firebase.auth();
+    const database = firebase.database();
+    let firestore = null;
+    try {
+      firestore = firebase.firestore();
+    } catch(e) {
+      console.warn("Firestore SDK initialization fallback:", e);
+    }
+
+    let currentUser = null;
+    let allUsers = [];
+    let userFilter = 'todos';
+    let allChannels = [];
+
+    // CONTROL DE AUTENTICACIÓN
+    auth.onAuthStateChanged(user => {
+      currentUser = user;
+      const overlay = document.getElementById("loginOverlay");
+      const app = document.getElementById("adminApp");
+      const emailBadge = document.getElementById("authEmailBadge");
+      const btnLogout = document.getElementById("btnLogout");
+
+      if (user) {
+        overlay.style.display = "none";
+        app.style.display = "block";
+        emailBadge.style.display = "inline-block";
+        emailBadge.textContent = user.email;
+        btnLogout.style.display = "inline-flex";
+        
+        // Cargar datos
+        fetchUsers();
+        initChannelsListener();
+      } else {
+        overlay.style.display = "flex";
+        app.style.display = "none";
+        emailBadge.style.display = "none";
+        btnLogout.style.display = "none";
+      }
+    });
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById("loginEmail").value.trim();
+      const pass = document.getElementById("loginPassword").value;
+      const errorDiv = document.getElementById("loginError");
+      const submitBtn = document.getElementById("btnLoginSubmit");
+
+      errorDiv.style.display = "none";
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<span class="loading-spinner"></span> Entrando...`;
+
+      try {
+        await auth.signInWithEmailAndPassword(email, pass);
+        showToast("Sesión iniciada correctamente", "success");
+      } catch (err) {
+        console.error("Login error:", err);
+        errorDiv.style.display = "block";
+        let msg = "Error al iniciar sesión: " + err.message;
+        if (err.code === "auth/user-not-found" || err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
+          msg = "Credenciales incorrectas. Verifica el correo y la contraseña.";
+        }
+        errorDiv.textContent = msg;
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `🔑 Iniciar Sesión`;
+      }
+    }
+
+    async function logout() {
+      try {
+        await auth.signOut();
+        showToast("Sesión cerrada", "success");
+      } catch (err) {
+        console.error("Logout error:", err);
+      }
+    }
+
+    // GESTIÓN DE PESTAÑAS
+    function switchTab(tab) {
+      const tabUsers = document.getElementById("sectionUsers");
+      const tabChannels = document.getElementById("sectionChannels");
+      const btnUsers = document.getElementById("tabBtnUsers");
+      const btnChannels = document.getElementById("tabBtnChannels");
+
+      if (tab === 'users') {
+        tabUsers.style.display = "block";
+        tabChannels.style.display = "none";
+        btnUsers.classList.add("active");
+        btnChannels.classList.remove("active");
+      } else {
+        tabUsers.style.display = "none";
+        tabChannels.style.display = "block";
+        btnUsers.classList.remove("active");
+        btnChannels.classList.add("active");
+      }
+    }
+
+    // MÓDULO: USUARIOS (RTDB)
     async function fetchUsers() {
       const icon = document.getElementById("refreshIcon");
       if (icon) icon.style.animation = "spin 1s infinite linear";
 
       try {
-        const response = await fetch(`${FIREBASE_BASE_URL}.json`);
-        if (!response.ok) throw new Error("HTTP error " + response.status);
-        const data = await response.json();
+        const snapshot = await database.ref('users').once('value');
+        const data = snapshot.val();
 
         if (data) {
           allUsers = Object.keys(data).map(key => {
-            const user = data[key];
-            user.telegram_id = user.telegram_id || key;
-            user.rol = user.rol || (user.es_vip ? "donador" : "normal");
-            user.estado = user.estado || "activo";
-            return user;
+            const u = data[key];
+            u.telegram_id = u.telegram_id || key;
+            u.rol = u.rol || (u.es_vip ? "donador" : "normal");
+            u.estado = u.estado || "activo";
+            return u;
           });
-
           allUsers.sort((a, b) => (b.ultimo_acceso_ms || 0) - (a.ultimo_acceso_ms || 0));
         } else {
           allUsers = [];
         }
 
-        updateMetrics();
-        applyFiltersAndRender();
+        updateUserMetrics();
+        renderUsersTable();
       } catch (err) {
-        console.error("Error consultando Firebase RTDB:", err);
-        document.getElementById("usersTableBody").innerHTML = `
-          <tr>
-            <td colspan="8" class="empty-state" style="color: #ff5252;">
-              ⚠️ No se pudo conectar a Firebase Realtime Database.<br>
-              <small style="color: var(--text-muted);">${err.message}</small>
-            </td>
-          </tr>
-        `;
+        console.error("Error consultando usuarios:", err);
+        showToast("Error al cargar usuarios: " + err.message, "error");
       } finally {
         if (icon) icon.style.animation = "none";
       }
     }
 
-    function updateMetrics() {
+    function updateUserMetrics() {
       document.getElementById("totalUsers").textContent = allUsers.length;
-      
-      const normalCount = allUsers.filter(u => {
-        const r = (u.rol || 'normal').toLowerCase();
-        return r === 'normal' || r === 'demo' || r === 'cliente' || r === 'app';
-      }).length;
-      const donadorCount = allUsers.filter(u => {
-        const r = (u.rol || '').toLowerCase();
-        return r === 'donador' || r === 'supporter' || r === 'vip';
-      }).length;
-      const adminCount = allUsers.filter(u => (u.rol || '').toLowerCase() === 'admin').length;
-      const expiredCount = allUsers.filter(u => ['expirado', 'bloqueado', 'inactivo'].includes((u.estado || '').toLowerCase())).length;
+      const normal = allUsers.filter(u => ['normal', 'demo', 'cliente', 'app'].includes((u.rol || 'normal').toLowerCase())).length;
+      const donador = allUsers.filter(u => ['donador', 'supporter', 'vip'].includes((u.rol || '').toLowerCase())).length;
+      const admins = allUsers.filter(u => (u.rol || '').toLowerCase() === 'admin').length;
+      const expired = allUsers.filter(u => ['expirado', 'bloqueado', 'inactivo'].includes((u.estado || '').toLowerCase())).length;
 
-      document.getElementById("totalNormal").textContent = normalCount;
-      document.getElementById("totalDonadores").textContent = donadorCount;
-      document.getElementById("totalAdmins").textContent = adminCount;
-      document.getElementById("totalExpired").textContent = expiredCount;
+      document.getElementById("totalNormal").textContent = normal;
+      document.getElementById("totalDonadores").textContent = donador;
+      document.getElementById("totalAdmins").textContent = admins;
+      document.getElementById("totalExpired").textContent = expired;
     }
 
-    function setFilter(filter, btn) {
-      currentFilter = filter;
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    function setUserFilter(filter, btn) {
+      userFilter = filter;
+      document.querySelectorAll('#sectionUsers .filter-btn').forEach(b => b.classList.remove('active'));
       if (btn) btn.classList.add('active');
-      applyFiltersAndRender();
+      renderUsersTable();
     }
 
-    function applyFiltersAndRender() {
+    function renderUsersTable() {
       const q = document.getElementById("searchInput").value.toLowerCase().trim();
+      const tbody = document.getElementById("usersTableBody");
 
       let filtered = allUsers.filter(u => {
-        const matchesQuery = !q || (
+        const matchQ = !q || (
           (u.first_name && u.first_name.toLowerCase().includes(q)) ||
           (u.username && u.username.toLowerCase().includes(q)) ||
           (u.device_model && u.device_model.toLowerCase().includes(q)) ||
-          (u.device_id && u.device_id.toLowerCase().includes(q)) ||
           (String(u.telegram_id).includes(q))
         );
-
-        if (!matchesQuery) return false;
+        if (!matchQ) return false;
 
         const rol = (u.rol || 'normal').toLowerCase();
-        const estado = (u.estado || 'activo').toLowerCase();
-
-        if (currentFilter === 'normal') return ['normal', 'demo', 'cliente', 'app'].includes(rol);
-        if (currentFilter === 'donador') return ['donador', 'supporter', 'vip'].includes(rol);
-        if (currentFilter === 'admin') return rol === 'admin';
-        if (currentFilter === 'inactivo') return ['expirado', 'bloqueado', 'inactivo'].includes(estado);
+        const est = (u.estado || 'activo').toLowerCase();
+        if (userFilter === 'normal') return ['normal', 'demo', 'cliente', 'app'].includes(rol);
+        if (userFilter === 'donador') return ['donador', 'supporter', 'vip'].includes(rol);
+        if (userFilter === 'admin') return rol === 'admin';
+        if (userFilter === 'inactivo') return ['expirado', 'bloqueado', 'inactivo'].includes(est);
 
         return true;
       });
 
-      renderTable(filtered);
-    }
-
-    function getBenefitHtml(user) {
-      const rol = (user.rol || "normal").toLowerCase();
-      if (rol === 'admin') {
-        return `<div class="sub-wrap"><span class="sub-badge sub-vip">👑 Administrador Total</span></div>`;
-      }
-      if (rol === 'donador' || rol === 'supporter' || rol === 'vip') {
-        return `<div class="sub-wrap"><span class="sub-badge sub-vip">⭐ Canales Ilimitados</span></div>`;
-      }
-      return `<div class="sub-wrap"><span class="sub-badge sub-app">⚪ Máx 3 Canales</span></div>`;
-    }
-
-    function renderTable(users) {
-      const tbody = document.getElementById("usersTableBody");
-      if (users.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="8" class="empty-state">
-              No se encontraron usuarios para el filtro seleccionado.
-            </td>
-          </tr>
-        `;
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="empty-state">No se encontraron usuarios</td></tr>`;
         return;
       }
 
-      tbody.innerHTML = users.map(user => {
-        const username = user.username && user.username !== "Sin @username" ? "@" + user.username.replace("@", "") : "Sin alias";
-        const rol = (user.rol || "normal").toLowerCase();
-        const estado = (user.estado || "activo").toLowerCase();
-
-        const roleClass = (rol === 'donador' || rol === 'supporter' || rol === 'vip') ? 'role-donador' : (rol === 'admin' ? 'role-admin' : 'role-normal');
-        const statusClass = estado === 'activo' ? 'status-activo' : 'status-expirado';
-        const benefitHtml = getBenefitHtml(user);
+      tbody.innerHTML = filtered.map(u => {
+        const username = u.username && u.username !== "Sin @username" ? "@" + u.username.replace("@", "") : "Sin alias";
+        const rol = (u.rol || "normal").toLowerCase();
+        const isVip = ['donador', 'supporter', 'vip', 'admin'].includes(rol);
+        const benefitBadge = isVip 
+          ? `<span class="badge-pill role-donador">⭐ Canales Ilimitados</span>`
+          : `<span class="badge-pill role-normal">⚪ Máx 3 Canales</span>`;
 
         return `
-          <tr id="row-${user.telegram_id}">
+          <tr>
             <td>
-              <div class="user-pill">
-                <span class="user-name">${escapeHtml(user.first_name || "Usuario")}</span>
-                <span class="user-handle">${escapeHtml(username)}</span>
-              </div>
+              <div style="font-weight: 700; color: white;">${escapeHtml(u.first_name || "Usuario")}</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">${escapeHtml(username)}</div>
             </td>
-            <td style="font-family: monospace; color: #c4b5fd; font-weight: 600;">
-              ${user.telegram_id}
-            </td>
+            <td style="font-family: monospace; color: #c4b5fd; font-weight: 600;">${u.telegram_id}</td>
             <td>
-              <div class="device-pill">${escapeHtml(user.device_model || "Android TV")}</div>
-              <div class="device-id">${escapeHtml(user.device_id || "")} • ${escapeHtml(user.android_version || "")}</div>
+              <div>${escapeHtml(u.device_model || "Android TV")}</div>
+              <small style="color: var(--text-muted);">${escapeHtml(u.android_version || "")}</small>
             </td>
+            <td><strong style="color: #a855f7;">v${escapeHtml(u.app_version || "1.4.4")}</strong></td>
+            <td style="font-size: 0.82rem; color: var(--text-muted);">${escapeHtml(u.ultimo_acceso_fecha || "Reciente")}</td>
             <td>
-              <span style="font-weight: 700; color: #a855f7;">v${escapeHtml(user.app_version || "1.4.4")}</span>
-            </td>
-            <td>
-              <div class="date-text">${escapeHtml(user.ultimo_acceso_fecha || "Reciente")}</div>
-            </td>
-            <td>
-              <select class="role-select ${roleClass}" onchange="onRoleChange('${user.telegram_id}', this.value, this)">
-                <option value="normal" ${['normal', 'demo', 'cliente', 'app'].includes(rol) ? 'selected' : ''}>⚪ Usuario Comunitario</option>
-                <option value="donador" ${['donador', 'supporter', 'vip'].includes(rol) ? 'selected' : ''}>⭐ Donador VIP Supporter</option>
+              <select class="role-select" onchange="changeUserRole('${u.telegram_id}', this.value)">
+                <option value="normal" ${['normal', 'demo', 'app'].includes(rol) ? 'selected' : ''}>⚪ Normal (Comunitario)</option>
+                <option value="donador" ${['donador', 'supporter', 'vip'].includes(rol) ? 'selected' : ''}>⭐ Donador VIP</option>
                 <option value="admin" ${rol === 'admin' ? 'selected' : ''}>👑 Administrador</option>
               </select>
             </td>
+            <td>${benefitBadge}</td>
             <td>
-              ${benefitHtml}
-            </td>
-            <td>
-              <select class="status-select ${statusClass}" onchange="onStatusChange('${user.telegram_id}', this.value, this)">
-                <option value="activo" ${estado === 'activo' ? 'selected' : ''}>✅ Activo</option>
-                <option value="bloqueado" ${['expirado', 'bloqueado', 'inactivo'].includes(estado) ? 'selected' : ''}>⛔ Bloqueado / Inactivo</option>
-              </select>
+              <span class="badge-pill ${u.estado === 'activo' ? 'badge-active' : 'badge-paused'}">
+                ${u.estado === 'activo' ? 'Activo' : 'Inactivo'}
+              </span>
             </td>
           </tr>
         `;
       }).join("");
     }
 
-    async function onRoleChange(telegramId, newRole, selectEl) {
-      selectEl.className = 'role-select ' + ((newRole === 'donador' || newRole === 'vip') ? 'role-donador' : (newRole === 'admin' ? 'role-admin' : 'role-normal'));
-
-      const u = allUsers.find(x => String(x.telegram_id) === String(telegramId));
-      if (u) {
-        u.rol = newRole;
-        u.es_vip = (newRole === 'donador' || newRole === 'admin');
-      }
-
-      updateMetrics();
-      applyFiltersAndRender();
-
+    async function changeUserRole(telegramId, newRole) {
       try {
-        const res = await fetch(`${FIREBASE_BASE_URL}/${telegramId}.json`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            rol: newRole,
-            es_vip: (newRole === 'donador' || newRole === 'admin')
-          })
+        await database.ref(`users/${telegramId}`).patch({
+          rol: newRole,
+          es_vip: (newRole === 'donador' || newRole === 'admin')
         });
-
-        if (!res.ok) throw new Error("HTTP error " + res.status);
-        showToast(`Rol actualizado a [${newRole.toUpperCase()}] para ${u ? u.first_name : telegramId}`, "success");
+        const u = allUsers.find(x => String(x.telegram_id) === String(telegramId));
+        if (u) {
+          u.rol = newRole;
+          u.es_vip = (newRole === 'donador' || newRole === 'admin');
+        }
+        updateUserMetrics();
+        renderUsersTable();
+        showToast(`Rol actualizado a [${newRole.toUpperCase()}] para ${telegramId}`, "success");
       } catch (err) {
-        console.error("Error guardando rol:", err);
-        showToast("Error al guardar en Firebase: " + err.message, "error");
+        console.error("Error cambiando rol:", err);
+        showToast("Error actualizando rol: " + err.message, "error");
       }
     }
 
-    async function addSubscriptionDays(telegramId, days) {
-      const u = allUsers.find(x => String(x.telegram_id) === String(telegramId));
-      if (!u) return;
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      let baseDate = today;
-
-      if (u.fecha_limite) {
-        try {
-          const parts = u.fecha_limite.split("-");
-          if (parts.length === 3) {
-            const existing = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-            if (existing > today) {
-              baseDate = existing;
-            }
-          }
-        } catch (e) {}
-      }
-
-      const newTarget = new Date(baseDate.getTime() + days * 24 * 60 * 60 * 1000);
-      const yyyy = newTarget.getFullYear();
-      const mm = String(newTarget.getMonth() + 1).padStart(2, '0');
-      const dd = String(newTarget.getDate()).padStart(2, '0');
-      const newDateStr = `${yyyy}-${mm}-${dd}`;
-
-      u.fecha_limite = newDateStr;
-      u.rol = 'cliente';
-      u.estado = 'activo';
-
-      updateMetrics();
-      applyFiltersAndRender();
-
-      try {
-        const res = await fetch(`${FIREBASE_BASE_URL}/${telegramId}.json`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            fecha_limite: newDateStr,
-            rol: 'cliente',
-            estado: 'activo'
-          })
-        });
-        if (!res.ok) throw new Error("HTTP error " + res.status);
-        showToast(`+${days} días añadidos a ${u.first_name || telegramId}. Vence: ${newDateStr}`, "success");
-      } catch (err) {
-        console.error("Error guardando fecha límite:", err);
-        showToast("Error al guardar en Firebase: " + err.message, "error");
-      }
+    // MÓDULO: GESTOR DE CANALES (Tiempo Real)
+    function initChannelsListener() {
+      database.ref('channels').on('value', snapshot => {
+        const val = snapshot.val();
+        allChannels = [];
+        if (val) {
+          Object.keys(val).forEach(key => {
+            const item = val[key];
+            item._key = key;
+            item.id = item.id || Number(key) || 0;
+            item.name = item.name || "Canal sin nombre";
+            item.inviteLink = item.inviteLink || "";
+            item.category = item.category || "general";
+            item.isForum = !!item.isForum;
+            item.active = item.active !== false; // por defecto activo
+            allChannels.push(item);
+          });
+        }
+        updateChannelMetrics();
+        renderChannelsTable();
+      }, err => {
+        console.error("Error en listener de canales:", err);
+        showToast("Error escuchando canales: " + err.message, "error");
+      });
     }
 
-    async function setCustomDate(telegramId, currentVal) {
-      const todayStr = new Date().toISOString().split('T')[0];
-      const promptVal = prompt("Introduce la fecha de vencimiento (AAAA-MM-DD):", currentVal || todayStr);
-      if (!promptVal) return;
+    function updateChannelMetrics() {
+      document.getElementById("totalChannelsCount").textContent = allChannels.length;
+      document.getElementById("activeChannelsCount").textContent = allChannels.filter(c => c.active).length;
+      document.getElementById("moviesChannelsCount").textContent = allChannels.filter(c => c.category === 'peliculas').length;
+      document.getElementById("seriesChannelsCount").textContent = allChannels.filter(c => c.category === 'series').length;
+    }
 
-      const trimmed = promptVal.trim();
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
-        alert("Formato inválido. Debe ser AAAA-MM-DD (ej: 2026-12-31)");
+    function renderChannelsTable() {
+      const tbody = document.getElementById("channelsTableBody");
+      if (allChannels.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="empty-state">No hay canales registrados. Añade uno con el formulario de arriba.</td></tr>`;
         return;
       }
 
-      const u = allUsers.find(x => String(x.telegram_id) === String(telegramId));
-      if (u) {
-        u.fecha_limite = trimmed;
-        u.rol = 'cliente';
-        u.estado = 'activo';
+      tbody.innerHTML = allChannels.map(c => {
+        const catBadge = `<span class="badge-pill badge-cat-${c.category}">${c.category.toUpperCase()}</span>`;
+        const statusBadge = c.active 
+          ? `<span class="badge-pill badge-active">🟢 Activo</span>`
+          : `<span class="badge-pill badge-paused">⏸️ Pausado</span>`;
+        
+        const toggleBtn = c.active
+          ? `<button class="btn-sm btn-pause" onclick="toggleChannelActive('${c._key}', false)">⏸️ Pausar</button>`
+          : `<button class="btn-sm btn-resume" onclick="toggleChannelActive('${c._key}', true)">▶️ Activar</button>`;
+
+        return `
+          <tr>
+            <td>
+              <strong style="color: white; font-size: 0.95rem;">${escapeHtml(c.name)}</strong>
+            </td>
+            <td style="font-family: monospace; color: #c4b5fd;">${c.id}</td>
+            <td>${catBadge}</td>
+            <td>
+              <a href="${escapeHtml(c.inviteLink)}" target="_blank" rel="noopener noreferrer" style="color: var(--cyan-accent); text-decoration: none; word-break: break-all; font-size: 0.85rem;">
+                🔗 ${escapeHtml(c.inviteLink)}
+              </a>
+            </td>
+            <td>${c.isForum ? '✅ Sí' : '❌ No'}</td>
+            <td>${statusBadge}</td>
+            <td>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <button class="btn-sm" style="background: rgba(255,255,255,0.08); color: white;" onclick="editChannel('${c._key}')">✏️ Editar</button>
+                ${toggleBtn}
+                <button class="btn-sm btn-delete" onclick="deleteChannel('${c._key}', '${escapeHtml(c.name)}')">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    async function handleSaveChannel(e) {
+      e.preventDefault();
+      const docKey = document.getElementById("channelDocKey").value.trim();
+      const name = document.getElementById("chName").value.trim();
+      const idStr = document.getElementById("chId").value.trim();
+      const inviteLink = document.getElementById("chInvite").value.trim();
+      const category = document.getElementById("chCategory").value;
+      const isForum = document.getElementById("chIsForum").checked;
+
+      const numId = Number(idStr);
+      if (isNaN(numId) || numId === 0) {
+        alert("El ID de Telegram debe ser numérico (ej: -1004388643765)");
+        return;
       }
 
-      updateMetrics();
-      applyFiltersAndRender();
+      const channelData = {
+        id: numId,
+        name: name,
+        inviteLink: inviteLink,
+        category: category,
+        isForum: isForum,
+        active: true,
+        updatedAt: Date.now()
+      };
+
+      const targetKey = docKey || String(numId);
 
       try {
-        const res = await fetch(`${FIREBASE_BASE_URL}/${telegramId}.json`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            fecha_limite: trimmed,
-            rol: 'cliente',
-            estado: 'activo'
-          })
-        });
-        if (!res.ok) throw new Error("HTTP error " + res.status);
-        showToast(`Fecha límite de ${u ? u.first_name : telegramId} fijada en ${trimmed}`, "success");
+        await database.ref(`channels/${targetKey}`).set(channelData);
+
+        // Respaldo simultáneo en Firestore si está disponible
+        if (firestore) {
+          try {
+            await firestore.collection("channels").doc(targetKey).set(channelData, { merge: true });
+          } catch(fsErr) {
+            console.warn("Sync Firestore opcional no completado:", fsErr);
+          }
+        }
+
+        showToast(`Canal "${name}" guardado correctamente`, "success");
+        resetChannelForm();
       } catch (err) {
-        console.error("Error guardando fecha límite:", err);
-        showToast("Error al guardar en Firebase: " + err.message, "error");
+        console.error("Error guardando canal:", err);
+        showToast("Error guardando canal: " + err.message, "error");
       }
     }
 
-    async function onStatusChange(telegramId, newStatus, selectEl) {
-      selectEl.className = 'status-select ' + (newStatus === 'activo' ? 'status-activo' : 'status-expirado');
+    function editChannel(key) {
+      const c = allChannels.find(x => x._key === key);
+      if (!c) return;
 
-      const u = allUsers.find(x => String(x.telegram_id) === String(telegramId));
-      if (u) {
-        u.estado = newStatus;
+      document.getElementById("channelDocKey").value = c._key;
+      document.getElementById("chName").value = c.name;
+      document.getElementById("chId").value = c.id;
+      document.getElementById("chInvite").value = c.inviteLink;
+      document.getElementById("chCategory").value = c.category || "general";
+      document.getElementById("chIsForum").checked = !!c.isForum;
+
+      document.getElementById("channelFormTitleIcon").textContent = "✏️";
+      document.getElementById("channelFormTitleText").textContent = `Editar Canal: ${c.name}`;
+      document.getElementById("btnSaveChannel").innerHTML = "💾 Actualizar Cambios";
+      document.getElementById("btnCancelEdit").style.display = "inline-flex";
+
+      window.scrollTo({ top: document.getElementById("channelForm").offsetTop - 100, behavior: 'smooth' });
+    }
+
+    function resetChannelForm() {
+      document.getElementById("channelDocKey").value = "";
+      document.getElementById("chName").value = "";
+      document.getElementById("chId").value = "";
+      document.getElementById("chInvite").value = "";
+      document.getElementById("chCategory").value = "peliculas";
+      document.getElementById("chIsForum").checked = false;
+
+      document.getElementById("channelFormTitleIcon").textContent = "➕";
+      document.getElementById("channelFormTitleText").textContent = "Añadir Nuevo Canal Oficial / Comunitario";
+      document.getElementById("btnSaveChannel").innerHTML = "💾 Guardar Canal";
+      document.getElementById("btnCancelEdit").style.display = "none";
+    }
+
+    async function toggleChannelActive(key, newStatus) {
+      try {
+        await database.ref(`channels/${key}`).patch({ active: newStatus });
+        if (firestore) {
+          try {
+            await firestore.collection("channels").doc(key).update({ active: newStatus });
+          } catch (_) {}
+        }
+        showToast(newStatus ? "Canal activado para la app" : "Canal pausado en la app", "success");
+      } catch (err) {
+        console.error("Error alternando estado:", err);
+        showToast("Error: " + err.message, "error");
+      }
+    }
+
+    async function deleteChannel(key, name) {
+      if (!confirm(`¿Estás seguro de que deseas eliminar permanentemente el canal "${name}"?`)) {
+        return;
       }
 
-      updateMetrics();
-
       try {
-        const res = await fetch(`${FIREBASE_BASE_URL}/${telegramId}.json`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            estado: newStatus
-          })
-        });
-
-        if (!res.ok) throw new Error("HTTP error " + res.status);
-        showToast(`Estado cambiado a [${newStatus.toUpperCase()}]`, "success");
+        await database.ref(`channels/${key}`).remove();
+        if (firestore) {
+          try {
+            await firestore.collection("channels").doc(key).delete();
+          } catch (_) {}
+        }
+        showToast(`Canal "${name}" eliminado`, "success");
       } catch (err) {
-        console.error("Error guardando estado:", err);
-        showToast("Error al guardar en Firebase: " + err.message, "error");
+        console.error("Error eliminando canal:", err);
+        showToast("Error al eliminar: " + err.message, "error");
       }
     }
 
@@ -932,15 +1368,10 @@
 
     function escapeHtml(str) {
       if (!str) return "";
-      return String(str).replace(/[&<>"']/g, function(m) {
-        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
-      });
+      return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
     }
 
-    document.getElementById("searchInput").addEventListener("input", applyFiltersAndRender);
-
-    fetchUsers();
-    setInterval(fetchUsers, 30000);
+    document.getElementById("searchInput").addEventListener("input", renderUsersTable);
   </script>
 </body>
 </html>
