@@ -1145,10 +1145,18 @@
 
     async function changeUserRole(telegramId, newRole) {
       try {
-        await database.ref(`users/${telegramId}`).patch({
+        await database.ref(`users/${telegramId}`).update({
           rol: newRole,
           es_vip: (newRole === 'donador' || newRole === 'admin')
         });
+        if (firestore) {
+          try {
+            await firestore.collection("users").doc(String(telegramId)).set({
+              rol: newRole,
+              es_vip: (newRole === 'donador' || newRole === 'admin')
+            }, { merge: true });
+          } catch (_) {}
+        }
         const u = allUsers.find(x => String(x.telegram_id) === String(telegramId));
         if (u) {
           u.rol = newRole;
@@ -1321,7 +1329,7 @@
 
     async function toggleChannelActive(key, newStatus) {
       try {
-        await database.ref(`channels/${key}`).patch({ active: newStatus });
+        await database.ref(`channels/${key}`).update({ active: newStatus });
         if (firestore) {
           try {
             await firestore.collection("channels").doc(key).update({ active: newStatus });
