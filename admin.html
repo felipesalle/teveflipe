@@ -460,6 +460,7 @@
     .badge-cat-series { background: rgba(0, 229, 255, 0.15); color: var(--cyan-accent); border: 1px solid rgba(0, 229, 255, 0.35); }
     .badge-cat-kids { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); }
     .badge-cat-clasicos { background: rgba(236, 72, 153, 0.18); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.35); }
+    .badge-cat-anime { background: rgba(239, 68, 68, 0.2); color: #ff5252; border: 1px solid rgba(239, 68, 68, 0.45); }
     .badge-cat-general { background: rgba(255, 255, 255, 0.1); color: #e2e2ee; border: 1px solid rgba(255, 255, 255, 0.2); }
 
     .badge-active { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.35); }
@@ -831,14 +832,23 @@
           <span class="metric-label">📺 Series</span>
           <span class="metric-val" style="color: #fbbf24;" id="seriesChannelsCount">0</span>
         </div>
+        <div class="metric-card" style="border-top: 3px solid #ff5252;">
+          <span class="metric-label">🎌 Anime</span>
+          <span class="metric-val" style="color: #ff5252;" id="animeChannelsCount">0</span>
+        </div>
       </div>
 
       <!-- Formulario Añadir / Editar Canal -->
       <div class="card-panel">
-        <h3 class="card-title">
-          <span id="channelFormTitleIcon">➕</span>
-          <span id="channelFormTitleText">Añadir Nuevo Canal Oficial / Comunitario</span>
-        </h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+          <h3 class="card-title" style="margin-bottom: 0;">
+            <span id="channelFormTitleIcon">➕</span>
+            <span id="channelFormTitleText">Añadir Nuevo Canal Oficial / Comunitario</span>
+          </h3>
+          <button type="button" class="btn-sm" style="background: linear-gradient(135deg, #7c4dff, #ff5252); color: white; border: none; font-size: 0.85rem;" onclick="seedNewOfficialChannels()">
+            ⚡ Cargar Canales Nuevos (Anime & Infantil)
+          </button>
+        </div>
         
         <form id="channelForm" onsubmit="handleSaveChannel(event)">
           <input type="hidden" id="channelDocKey" value="">
@@ -862,6 +872,7 @@
                 <option value="peliculas">🎬 Películas</option>
                 <option value="series">📺 Series</option>
                 <option value="kids">👶 Kids / Infantil</option>
+                <option value="anime">🎌 Anime (Series y Películas)</option>
                 <option value="clasicos">🏛️ Clásicos</option>
                 <option value="general">🌐 General</option>
               </select>
@@ -1200,8 +1211,62 @@
     function updateChannelMetrics() {
       document.getElementById("totalChannelsCount").textContent = allChannels.length;
       document.getElementById("activeChannelsCount").textContent = allChannels.filter(c => c.active).length;
-      document.getElementById("moviesChannelsCount").textContent = allChannels.filter(c => c.category === 'peliculas').length;
-      document.getElementById("seriesChannelsCount").textContent = allChannels.filter(c => c.category === 'series').length;
+      document.getElementById("moviesChannelsCount").textContent = allChannels.filter(c => c.category === 'peliculas' || c.category === 'pelicula').length;
+      document.getElementById("seriesChannelsCount").textContent = allChannels.filter(c => c.category === 'series' || c.category === 'serie').length;
+      const animeEl = document.getElementById("animeChannelsCount");
+      if (animeEl) {
+        animeEl.textContent = allChannels.filter(c => c.category === 'anime').length;
+      }
+    }
+
+    async function seedNewOfficialChannels() {
+      const newOfficial = [
+        {
+          id: -1004383923903,
+          name: "🎬 Películas Infantiles",
+          inviteLink: "https://t.me/+mEtc35MtvH1mMjUz",
+          category: "kids",
+          isForum: false,
+          active: true,
+          updatedAt: Date.now()
+        },
+        {
+          id: -1004440781202,
+          name: "🎬 Películas Anime",
+          inviteLink: "https://t.me/+MfhT8wVNihg2OTBj",
+          category: "anime",
+          isForum: false,
+          active: true,
+          updatedAt: Date.now()
+        },
+        {
+          id: -1004445501873,
+          name: "📺 Series Anime",
+          inviteLink: "https://t.me/+-Co-U4T6sMM2MWMz",
+          category: "anime",
+          isForum: true,
+          active: true,
+          updatedAt: Date.now()
+        }
+      ];
+
+      try {
+        let added = 0;
+        for (const ch of newOfficial) {
+          const key = String(ch.id);
+          await database.ref(`channels/${key}`).set(ch);
+          if (firestore) {
+            try {
+              await firestore.collection("channels").doc(key).set(ch, { merge: true });
+            } catch (_) {}
+          }
+          added++;
+        }
+        showToast(`¡Se registraron ${added} canales oficiales (Películas Infantiles, Películas Anime y Series Anime)!`, "success");
+      } catch (err) {
+        console.error("Error registrando canales:", err);
+        showToast("Error: " + err.message, "error");
+      }
     }
 
     function renderChannelsTable() {
