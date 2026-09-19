@@ -1426,6 +1426,36 @@
       }
     }
 
+    async function seedNewOfficialChannels() {
+      const defaultChannels = [
+        { id: -1002146236969, name: "REPOSITORIO DE PELÍCULAS", inviteLink: "https://t.me/+MkmiqG81Wq1kYTJj", isForum: false, category: "peliculas", active: true },
+        { id: -1002097175258, name: "SERIES TV", inviteLink: "https://t.me/+9jxzu1QTtmFjYjRj", isForum: true, category: "series", active: true },
+        { id: -1004419790119, name: "Series Españolas", inviteLink: "https://t.me/+69qsybL6zbplZDRj", isForum: true, category: "series", active: true },
+        { id: -1004388643765, name: "Películas Clásicas", inviteLink: "https://t.me/+MJLcOPqptq05YTJj", isForum: false, category: "clasicos", active: true },
+        { id: -1004316187715, name: "Cine de los 80 y 90", inviteLink: "https://t.me/+iBFj892Hwak4Njcz", isForum: false, category: "peliculas", active: true },
+        { id: -1004383923903, name: "🎬 Películas Infantiles", inviteLink: "https://t.me/+mEtc35MtvH1mMjUz", isForum: false, category: "kids", active: true },
+        { id: -1004385066808, name: "Series Infantiles", inviteLink: "https://t.me/+zzFmAUwKqw45MDcz", isForum: true, category: "kids", active: true },
+        { id: -1004440781202, name: "🎬 Películas Anime", inviteLink: "https://t.me/+MfhT8wVNihg2OTBj", isForum: false, category: "anime", active: true },
+        { id: -1004445501873, name: "📺 Series Anime", inviteLink: "https://t.me/+-Co-U4T6sMM2MWMz", isForum: true, category: "anime", active: true }
+      ];
+
+      try {
+        for (const ch of defaultChannels) {
+          const chData = { ...ch, updatedAt: Date.now() };
+          await database.ref(`channels/${ch.id}`).update(chData);
+          if (firestore) {
+            try {
+              await firestore.collection("channels").doc(String(ch.id)).set(chData, { merge: true });
+            } catch (_) {}
+          }
+        }
+        showToast("¡Canales oficiales y de Anime / Infantil sincronizados con éxito!", "success");
+      } catch (err) {
+        console.error("Error al sincronizar canales:", err);
+        showToast("Error al sincronizar canales: " + err.message, "error");
+      }
+    }
+
     function showToast(msg, type = "success") {
       const container = document.getElementById("toastContainer");
       const el = document.createElement("div");
