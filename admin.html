@@ -845,9 +845,14 @@
             <span id="channelFormTitleIcon">➕</span>
             <span id="channelFormTitleText">Añadir Nuevo Canal Oficial / Comunitario</span>
           </h3>
-          <button type="button" class="btn-sm" style="background: linear-gradient(135deg, #7c4dff, #ff5252); color: white; border: none; font-size: 0.85rem;" onclick="seedNewOfficialChannels()">
-            ⚡ Cargar Canales Nuevos (Anime & Infantil)
-          </button>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button type="button" class="btn-sm" style="background: linear-gradient(135deg, #00e5ff, #7c4dff); color: white; border: none; font-size: 0.85rem;" onclick="seedSeriesThematicChannels()">
+              ⚡ Cargar 4 Supergrupos de Series
+            </button>
+            <button type="button" class="btn-sm" style="background: linear-gradient(135deg, #7c4dff, #ff5252); color: white; border: none; font-size: 0.85rem;" onclick="seedNewOfficialChannels()">
+              ⚡ Cargar Anime & Infantil
+            </button>
+          </div>
         </div>
         
         <form id="channelForm" onsubmit="handleSaveChannel(event)">
@@ -1219,31 +1224,40 @@
       }
     }
 
-    async function seedNewOfficialChannels() {
-      const newOfficial = [
+    async function seedSeriesThematicChannels() {
+      const thematicSeriesChannels = [
         {
-          id: -1004383923903,
-          name: "🎬 Películas Infantiles",
-          inviteLink: "https://t.me/+mEtc35MtvH1mMjUz",
-          category: "kids",
-          isForum: false,
+          id: -1004433726485,
+          name: "📺 Series Turcas y Telenovelas - TeveFlipe",
+          inviteLink: "https://t.me/+pwo8em9FxD4wODFj",
+          category: "series",
+          isForum: true,
           active: true,
           updatedAt: Date.now()
         },
         {
-          id: -1004440781202,
-          name: "🎬 Películas Anime",
-          inviteLink: "https://t.me/+MfhT8wVNihg2OTBj",
-          category: "anime",
-          isForum: false,
+          id: -1004419790119,
+          name: "📺 Series Españolas - TeveFlipe",
+          inviteLink: "https://t.me/+n-CNnrX1T8VlOTc7",
+          category: "series",
+          isForum: true,
           active: true,
           updatedAt: Date.now()
         },
         {
-          id: -1004445501873,
-          name: "📺 Series Anime",
-          inviteLink: "https://t.me/+-Co-U4T6sMM2MWMz",
-          category: "anime",
+          id: -1004388643765,
+          name: "📺 Series Retro y Clásicas - TeveFlipe",
+          inviteLink: "https://t.me/+ZirEqeVoh9o5MGQz",
+          category: "series",
+          isForum: true,
+          active: true,
+          updatedAt: Date.now()
+        },
+        {
+          id: -1002097175258,
+          name: "📺 Series TV - TeveFlipe",
+          inviteLink: "https://t.me/+Q8aNqycMJGA4M2M7",
+          category: "series",
           isForum: true,
           active: true,
           updatedAt: Date.now()
@@ -1252,9 +1266,9 @@
 
       try {
         let added = 0;
-        for (const ch of newOfficial) {
+        for (const ch of thematicSeriesChannels) {
           const key = String(ch.id);
-          await database.ref(`channels/${key}`).set(ch);
+          await database.ref(`channels/${key}`).update(ch);
           if (firestore) {
             try {
               await firestore.collection("channels").doc(key).set(ch, { merge: true });
@@ -1262,9 +1276,9 @@
           }
           added++;
         }
-        showToast(`¡Se registraron ${added} canales oficiales (Películas Infantiles, Películas Anime y Series Anime)!`, "success");
+        showToast(`¡Se registraron y actualizaron los ${added} Supergrupos Temáticos de Series!`, "success");
       } catch (err) {
-        console.error("Error registrando canales:", err);
+        console.error("Error registrando canales de series:", err);
         showToast("Error: " + err.message, "error");
       }
     }
