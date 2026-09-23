@@ -1671,10 +1671,17 @@
           updatedAt: Date.now()
         };
 
-        await database.ref('global_announcements').set(payload);
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Tiempo de espera agotado al conectar con Firebase")), 8000)
+        );
+        await Promise.race([
+          database.ref('global_announcements').set(payload),
+          timeoutPromise
+        ]);
+
         if (firestore) {
           try {
-            await firestore.collection("config").doc("global_announcements").set(payload);
+            firestore.collection("config").doc("global_announcements").set(payload).catch(() => {});
           } catch (_) {}
         }
 
@@ -1693,13 +1700,20 @@
       if (!confirm("¿Deseas desactivar el comunicado actual? Dejará de mostrarse en los televisores.")) return;
 
       try {
-        await database.ref('global_announcements').update({
-          active: false,
-          updatedAt: Date.now()
-        });
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Tiempo de espera agotado")), 8000)
+        );
+        await Promise.race([
+          database.ref('global_announcements').update({
+            active: false,
+            updatedAt: Date.now()
+          }),
+          timeoutPromise
+        ]);
+
         if (firestore) {
           try {
-            await firestore.collection("config").doc("global_announcements").update({ active: false });
+            firestore.collection("config").doc("global_announcements").update({ active: false }).catch(() => {});
           } catch (_) {}
         }
         const activeChk = document.getElementById('annActive');
