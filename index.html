@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TeveFlipe — Cliente Multimedia para la Nube de Telegram en Android TV y Fire TV</title>
-  <meta name="description" content="Reproductor multimedia nativo para Android TV y Fire TV. Conecta tu cuenta de Telegram y reproduce tus archivos personales en la nube con interfaz cinematográfica, soporte de foros/series y bajo consumo de memoria.">
+  <meta name="description" content="Reproductor multimedia nativo para Android TV y Fire TV. Conecta tu cuenta de Telegram y reproduce tus colecciones y vídeos personales en la nube con interfaz cinematográfica y bajo consumo de memoria.">
   <link rel="icon" type="image/png" href="assets/icon.png">
 
   <!-- Tipografía del sistema e Inter -->
@@ -70,8 +70,8 @@
 
       <!-- Navegación desktop -->
       <nav class="hidden md:flex items-center gap-6 text-sm text-zinc-300">
-        <a href="#funciones" class="hover:text-white transition-colors">Características</a>
-        <a href="#series-foros" class="hover:text-white transition-colors">Series y Foros</a>
+        <a href="#funciones" class="hover:text-white transition-colors">Capturas</a>
+        <a href="#colecciones" class="hover:text-white transition-colors">Colecciones y Vídeos</a>
         <a href="#rendimiento" class="hover:text-white transition-colors">1 GB RAM</a>
         <a href="#instalacion" class="hover:text-white transition-colors">Instalación</a>
         <a href="#faq" class="hover:text-white transition-colors">Preguntas</a>
@@ -112,7 +112,7 @@
 
         <!-- Párrafo descriptivo -->
         <p class="mt-5 text-base sm:text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-          TeveFlipe es un reproductor multimedia nativo para Android TV y Fire TV que se conecta a tu propia cuenta de Telegram. Reproduce tus vídeos personales, archivos y foros con carátulas automáticas y navegación fluida por mando.
+          TeveFlipe es un reproductor multimedia nativo para Android TV y Fire TV que se conecta a tu cuenta de Telegram. Reproduce tus colecciones, vídeos personales y archivos con carátulas automáticas y navegación fluida por mando.
         </p>
 
         <!-- CTA Principal -->
@@ -121,9 +121,8 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
             Descargar APK v1.8.14
           </a>
-          <a href="https://t.me/+539612193654" target="_blank" rel="noopener" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-medium text-zinc-300 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 transition">
-            <svg class="w-4 h-4 text-sky-400 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.12.03-1.99 1.27-5.61 3.72-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.88.03-.24.37-.49 1.02-.75 3.99-1.74 6.66-2.89 8.01-3.46 3.82-1.6 4.62-1.88 5.14-1.89.11 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.13-.04.22z"/></svg>
-            Contacto en Telegram
+          <a href="#instalacion" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-medium text-zinc-300 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 transition">
+            <span class="font-mono text-indigo-400 font-bold">Código Downloader: 7261281</span>
           </a>
         </div>
 
@@ -131,11 +130,11 @@
           Sin publicidad • Código libre comunitario • Inicio de sesión por código QR
         </p>
 
-        <!-- Mockup TV Sobrio -->
+        <!-- Mockup TV con captura real 2 -->
         <div class="mt-12 max-w-4xl mx-auto">
           <div class="rounded-2xl bg-zinc-950 p-2 sm:p-3 border border-zinc-800 shadow-2xl">
             <div class="rounded-xl overflow-hidden bg-black aspect-video relative border border-white/5">
-              <img src="assets/hero_tv.png" alt="Interfaz de TeveFlipe en Android TV" class="w-full h-full object-cover">
+              <img src="assets/captura_2.png" alt="Catálogo de colecciones en TeveFlipe para Android TV" class="w-full h-full object-cover">
             </div>
             <div class="pt-2.5 pb-1 flex items-center justify-between px-3 text-[11px] text-zinc-400 font-mono">
               <span>Navegación nativa con control remoto D-Pad</span>
@@ -219,19 +218,19 @@
     </section>
 
 
-    <!-- SECCIÓN: NOVEDADES RECIENTES (SERIES, FOROS, AUTO-NEXT) -->
-    <section id="series-foros" class="py-16 md:py-20 border-b border-app-border">
+    <!-- SECCIÓN: COLECCIONES Y VÍDEOS PERSONALES -->
+    <section id="colecciones" class="py-16 md:py-20 border-b border-app-border">
       <div class="max-w-5xl mx-auto px-4 sm:px-6">
         
         <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           <div>
-            <span class="text-xs font-mono text-indigo-400 uppercase tracking-wider font-semibold">Novedades en v1.8.14</span>
+            <span class="text-xs font-mono text-indigo-400 uppercase tracking-wider font-semibold">Gestión Multimedia</span>
             <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">
-              Motor avanzado de Series y Foros
+              Colecciones y Vídeos Personales
             </h2>
           </div>
           <p class="text-zinc-400 text-xs sm:text-sm max-w-md">
-            Mejoras desarrolladas específicamente para organizar colecciones completas con la experiencia de una plataforma de streaming tradicional.
+            Organiza tus grabaciones, archivos de vídeo y colecciones temáticas con la comodidad visual de una plataforma moderna.
           </p>
         </div>
 
@@ -243,10 +242,10 @@
               <span class="p-2 rounded-lg bg-zinc-800 text-zinc-200">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
               </span>
-              <h3 class="font-bold text-white text-base">Compatibilidad con Temas y Foros</h3>
+              <h3 class="font-bold text-white text-base">Organización por Colecciones y Temas</h3>
             </div>
             <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed">
-              Si organizas tus grupos de Telegram por temas (topics) para separar series o temporadas, TeveFlipe reconoce la jerarquía automáticamente y agrupa los episodios en una ficha unificada con selector de capítulos.
+              Si agrupas tus vídeos en canales o grupos con temas habilitados, TeveFlipe estructura automáticamente cada volumen o sección en una ficha ordenada con selector secuencial de contenidos.
             </p>
           </div>
 
@@ -256,10 +255,10 @@
               <span class="p-2 rounded-lg bg-zinc-800 text-zinc-200">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z"/></svg>
               </span>
-              <h3 class="font-bold text-white text-base">Salto automático al siguiente capítulo</h3>
+              <h3 class="font-bold text-white text-base">Salto continuo al siguiente vídeo</h3>
             </div>
             <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed">
-              Al finalizar un episodio, la aplicación muestra una cuenta atrás interactiva para iniciar el siguiente capítulo sin tener que volver al menú principal. Puedes confirmar o cancelar con el botón central del mando.
+              Al finalizar la reproducción, la app te permite continuar automáticamente con el siguiente vídeo de tu lista mediante un aviso con cuenta atrás interactiva en el mando.
             </p>
           </div>
 
@@ -272,7 +271,7 @@
               <h3 class="font-bold text-white text-base">Menú lateral cinemático</h3>
             </div>
             <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed">
-              Nueva barra de navegación lateral con oscurecimiento de fondo que prioriza la imagen del catálogo y permite cambiar rápidamente entre Inicio, Series, Películas, Favoritos y Ajustes.
+              Barra de navegación lateral rápida con oscurecimiento ambiental que prioriza la imagen y permite alternar cómodamente entre Inicio, Películas, Favoritos y Ajustes.
             </p>
           </div>
 
@@ -282,10 +281,10 @@
               <span class="p-2 rounded-lg bg-zinc-800 text-zinc-200">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
               </span>
-              <h3 class="font-bold text-white text-base">Carátulas e información en español</h3>
+              <h3 class="font-bold text-white text-base">Carátulas e información detallada</h3>
             </div>
             <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed">
-              Búsqueda en segundo plano que asocia los nombres de archivo a sus carátulas originales, fondo panorámico adaptativo y ficha descriptiva completa.
+              Búsqueda en segundo plano que enriquece tus archivos con fichas descriptivas, sinopsis en español, año de lanzamiento, géneros y fondos cinematográficos.
             </p>
           </div>
 
@@ -341,35 +340,75 @@
     </section>
 
 
-    <!-- SECCIÓN: CAPTURAS DE PANTALLA REALES -->
+    <!-- SECCIÓN: CAPTURAS DE PANTALLA REALES DE LA APP -->
     <section id="funciones" class="py-16 md:py-20 border-b border-app-border">
       <div class="max-w-5xl mx-auto px-4 sm:px-6">
         
         <div class="text-center max-w-2xl mx-auto mb-12">
-          <span class="text-xs font-mono text-indigo-400 uppercase tracking-wider font-semibold">Interfaz de Usuario</span>
+          <span class="text-xs font-mono text-indigo-400 uppercase tracking-wider font-semibold">Interfaz de Usuario Real</span>
           <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">
-            Una experiencia pensada para el sofá
+            Capturas de pantalla en Android TV
           </h2>
           <p class="text-zinc-400 text-xs sm:text-sm mt-2">
-            Todo se controla exclusivamente con la cruceta del mando a distancia. Sin punteros virtuales ni necesidad de ratón.
+            Control 100% nativo con la cruceta del mando a distancia. Fluido, rápido y sin punteros de ratón.
           </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           
-          <div class="rounded-xl overflow-hidden bg-zinc-950 border border-zinc-800 p-2">
-            <img src="assets/captura_catalogo.png" alt="Catálogo de contenido en TeveFlipe" class="rounded-lg w-full aspect-video object-cover">
+          <!-- Captura 1: Menú Lateral y Continuar Viendo -->
+          <div class="rounded-xl overflow-hidden bg-zinc-950 border border-zinc-800 p-2 flex flex-col justify-between">
+            <div class="rounded-lg overflow-hidden aspect-video bg-black">
+              <img src="assets/captura_1.png" alt="Menú lateral cinemático y fila Continuar Viendo" class="w-full h-full object-cover hover:scale-105 transition duration-500">
+            </div>
             <div class="p-3">
-              <h3 class="font-semibold text-white text-sm">Exploración de Canales y Grupos</h3>
-              <p class="text-zinc-400 text-xs mt-1">Navegación horizontal por filas temáticas, historial reciente y listas de favoritos sincronizadas localmente.</p>
+              <div class="flex items-center justify-between mb-1">
+                <h3 class="font-semibold text-white text-sm">Menú Lateral Cinemático</h3>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300">Navegación</span>
+              </div>
+              <p class="text-zinc-400 text-xs">Acceso directo a Inicio, Películas, Mi Cuenta y Buscar, con atenuación de fondo y progreso de reproducción.</p>
             </div>
           </div>
 
-          <div class="rounded-xl overflow-hidden bg-zinc-950 border border-zinc-800 p-2">
-            <img src="assets/captura_ajustes.png" alt="Pantalla de ajustes y control" class="rounded-lg w-full aspect-video object-cover">
+          <!-- Captura 2: Catálogo con Colecciones -->
+          <div class="rounded-xl overflow-hidden bg-zinc-950 border border-zinc-800 p-2 flex flex-col justify-between">
+            <div class="rounded-lg overflow-hidden aspect-video bg-black">
+              <img src="assets/captura_2.png" alt="Catálogo principal de colecciones con carátulas" class="w-full h-full object-cover hover:scale-105 transition duration-500">
+            </div>
             <div class="p-3">
-              <h3 class="font-semibold text-white text-sm">Panel de Control y Diagnóstico</h3>
-              <p class="text-zinc-400 text-xs mt-1">Visualización de sesión activa, medidor de memoria RAM en tiempo real y selector de calidad de streaming.</p>
+              <div class="flex items-center justify-between mb-1">
+                <h3 class="font-semibold text-white text-sm">Catálogo y Filas Temáticas</h3>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300">Explorador</span>
+              </div>
+              <p class="text-zinc-400 text-xs">Pósters en alta definición con foco de selección activo y fondo dinámico proyectado tras el catálogo.</p>
+            </div>
+          </div>
+
+          <!-- Captura 3: Ficha Detallada de Vídeo -->
+          <div class="rounded-xl overflow-hidden bg-zinc-950 border border-zinc-800 p-2 flex flex-col justify-between">
+            <div class="rounded-lg overflow-hidden aspect-video bg-black">
+              <img src="assets/captura_4.png" alt="Ficha detallada con sinopsis y reanudación" class="w-full h-full object-cover hover:scale-105 transition duration-500">
+            </div>
+            <div class="p-3">
+              <div class="flex items-center justify-between mb-1">
+                <h3 class="font-semibold text-white text-sm">Ficha Informativa Completa</h3>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300">Detalles</span>
+              </div>
+              <p class="text-zinc-400 text-xs">Sinopsis completa, año, puntuación, etiquetas de género, opción de reanudación exacta y reproductor externo.</p>
+            </div>
+          </div>
+
+          <!-- Captura 4: Reproducción a Pantalla Completa -->
+          <div class="rounded-xl overflow-hidden bg-zinc-950 border border-zinc-800 p-2 flex flex-col justify-between">
+            <div class="rounded-lg overflow-hidden aspect-video bg-black">
+              <img src="assets/captura_3.png" alt="Reproducción a pantalla completa en alta definición" class="w-full h-full object-cover hover:scale-105 transition duration-500">
+            </div>
+            <div class="p-3">
+              <div class="flex items-center justify-between mb-1">
+                <h3 class="font-semibold text-white text-sm">Reproducción HD Fluida</h3>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300">Player</span>
+              </div>
+              <p class="text-zinc-400 text-xs">Streaming continuo sin pausas ni cortes, aprovechando la aceleración de decodificación por hardware de tu TV.</p>
             </div>
           </div>
 
@@ -379,17 +418,17 @@
     </section>
 
 
-    <!-- SECCIÓN: INSTALACIÓN RÁPIDA -->
+    <!-- SECCIÓN: INSTALACIÓN RÁPIDA CON CÓDIGO DOWNLOADER -->
     <section id="instalacion" class="py-16 bg-[#0E121B] border-b border-app-border">
       <div class="max-w-5xl mx-auto px-4 sm:px-6">
         
         <div class="text-center max-w-2xl mx-auto mb-12">
-          <span class="text-xs font-mono text-indigo-400 uppercase tracking-wider font-semibold">Instalación</span>
+          <span class="text-xs font-mono text-indigo-400 uppercase tracking-wider font-semibold">Instalación Sencilla</span>
           <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">
             Instalar en 2 minutos con la app Downloader
           </h2>
           <p class="text-zinc-400 text-xs sm:text-sm mt-2">
-            Disponible para cualquier dispositivo con Android TV, Google TV o Amazon Fire TV.
+            Compatible con Amazon Fire TV Stick, Xiaomi TV Box, Chromecast y Smart TVs Android.
           </p>
         </div>
 
@@ -403,7 +442,7 @@
               </div>
               <h3 class="font-bold text-white text-base mb-2">Instala Downloader</h3>
               <p class="text-zinc-400 text-xs leading-relaxed">
-                Entra en la tienda de aplicaciones de tu televisor (Google Play o Amazon Appstore) y busca la app gratuita <strong class="text-zinc-200">Downloader</strong> de AFTVnews.
+                Entra en la tienda de aplicaciones de tu televisor (Google Play Store o Amazon Appstore) y busca la app gratuita <strong class="text-zinc-200">Downloader</strong> de AFTVnews.
               </p>
             </div>
             <div class="mt-6 pt-3 border-t border-zinc-800 text-[11px] text-zinc-400">
@@ -411,26 +450,38 @@
             </div>
           </div>
 
-          <!-- Paso 2 -->
-          <div class="p-6 rounded-xl bg-app-surface border border-indigo-500/40 flex flex-col justify-between">
+          <!-- Paso 2: Con código Downloader destacado -->
+          <div class="p-6 rounded-xl bg-app-surface border border-indigo-500/50 shadow-lg shadow-indigo-950/40 flex flex-col justify-between">
             <div>
               <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white font-mono font-bold text-sm flex items-center justify-center mb-4">
                 2
               </div>
-              <h3 class="font-bold text-white text-base mb-2">Escribe la URL corta</h3>
+              <h3 class="font-bold text-white text-base mb-1">Escribe el Código Downloader</h3>
               <p class="text-zinc-400 text-xs leading-relaxed mb-3">
-                Abre Downloader y en la barra de direcciones introduce:
+                Abre Downloader y teclea directamente este código numérico:
               </p>
               
-              <div class="p-2.5 rounded-lg bg-black border border-zinc-700 flex items-center justify-between">
-                <span class="font-mono text-xs font-bold text-indigo-300" id="dlUrlText">tinyurl.com/teveflipe-tv</span>
-                <button onclick="copyDownloadUrl()" class="px-2 py-0.5 rounded text-[11px] font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-300">
-                  <span id="copyBtnLabel">Copiar</span>
+              <!-- Caja destacada del código Downloader -->
+              <div class="p-3 rounded-lg bg-black border border-indigo-500/40 flex items-center justify-between mb-2.5">
+                <div>
+                  <span class="text-[10px] text-zinc-400 uppercase font-mono block">Código Downloader</span>
+                  <span class="font-mono text-xl sm:text-2xl font-black text-indigo-300 tracking-wider" id="dlCodeText">7261281</span>
+                </div>
+                <button onclick="copyDownloaderCode()" class="px-2.5 py-1 rounded text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 text-zinc-200 transition">
+                  <span id="copyCodeBtnLabel">Copiar</span>
+                </button>
+              </div>
+
+              <!-- URL corta alternativa -->
+              <div class="p-2 rounded bg-zinc-950 border border-zinc-800 flex items-center justify-between text-xs">
+                <span class="font-mono text-zinc-400 text-[11px] truncate">O url: tinyurl.com/teveflipe-tv</span>
+                <button onclick="copyDownloadUrl()" class="text-zinc-400 hover:text-zinc-200 text-[11px] font-mono underline ml-2 shrink-0">
+                  <span id="copyUrlBtnLabel">Copiar</span>
                 </button>
               </div>
             </div>
             <div class="mt-6 pt-3 border-t border-zinc-800 text-[11px] text-indigo-400 font-mono">
-              Descarga directa del APK armeabi-v7a
+              Descarga directa del APK oficial v1.8.14
             </div>
           </div>
 
@@ -442,7 +493,7 @@
               </div>
               <h3 class="font-bold text-white text-base mb-2">Escanea el código QR</h3>
               <p class="text-zinc-400 text-xs leading-relaxed">
-                Abre TeveFlipe. En tu móvil abre Telegram, ve a <em>Ajustes > Dispositivos > Vincular dispositivo</em> y apunta la cámara a tu televisor.
+                Abre TeveFlipe en la tele. En tu móvil abre Telegram, ve a <em>Ajustes > Dispositivos > Vincular dispositivo</em> y enfoca la cámara a la pantalla.
               </p>
             </div>
             <div class="mt-6 pt-3 border-t border-zinc-800 text-[11px] text-zinc-400">
@@ -531,7 +582,7 @@
             </button>
             <div class="faq-content max-h-0 overflow-hidden px-5 pb-0 opacity-0">
               <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed pb-5">
-                No. TeveFlipe es exclusivamente un software reproductor y cliente para la nube de Telegram (BYOC - Trae tu propio contenido). La aplicación reproduce los archivos, chats, canales y grupos personales a los que tu propia cuenta de Telegram tenga acceso.
+                No. TeveFlipe es exclusivamente un software reproductor y cliente para la nube de Telegram (BYOC - Trae tu propio contenido). La aplicación reproduce las colecciones, vídeos personales, archivos y chats a los que tu propia cuenta de Telegram tenga acceso.
               </p>
             </div>
           </div>
@@ -594,7 +645,7 @@
 
       <div class="pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
         <p class="text-[11px] text-zinc-400 max-w-2xl leading-relaxed">
-          <strong>Aviso de uso:</strong> TeveFlipe es una aplicación cliente independiente basada en la API abierta de Telegram. No aloja, distribuye ni retransmite contenido audiovisual protegido. Cada usuario accede exclusivamente a su propio almacenamiento y canales personales.
+          <strong>Aviso de uso:</strong> TeveFlipe es una aplicación cliente independiente basada en la API abierta de Telegram. No aloja, distribuye ni retransmite contenido audiovisual protegido. Cada usuario accede exclusivamente a sus propias colecciones, vídeos y canales personales.
         </p>
         <p class="text-[11px] text-zinc-400 font-mono shrink-0">
           v1.8.14 • © 2026 TeveFlipe
@@ -634,16 +685,30 @@
       }
     }
 
+    // Copiar código numérico Downloader
+    function copyDownloaderCode() {
+      const code = "7261281";
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('copyCodeBtnLabel');
+        btn.textContent = "Copiado";
+        btn.classList.add('text-emerald-400');
+        setTimeout(() => {
+          btn.textContent = "Copiar";
+          btn.classList.remove('text-emerald-400');
+        }, 2000);
+      });
+    }
+
     // Copiar URL para Downloader
     function copyDownloadUrl() {
       const url = "tinyurl.com/teveflipe-tv";
       navigator.clipboard.writeText(url).then(() => {
-        const btnLabel = document.getElementById('copyBtnLabel');
-        btnLabel.textContent = "Copiado";
-        btnLabel.classList.add('text-emerald-400');
+        const btn = document.getElementById('copyUrlBtnLabel');
+        btn.textContent = "Copiado";
+        btn.classList.add('text-emerald-400');
         setTimeout(() => {
-          btnLabel.textContent = "Copiar";
-          btnLabel.classList.remove('text-emerald-400');
+          btn.textContent = "Copiar";
+          btn.classList.remove('text-emerald-400');
         }, 2000);
       });
     }
