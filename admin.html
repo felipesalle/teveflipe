@@ -742,6 +742,9 @@
       <button id="tabBtnChannels" class="tab-btn" onclick="switchTab('channels')">
         📺 Gestor de Canales (Comunitarios & VIP)
       </button>
+      <button id="tabBtnAnnouncements" class="tab-btn" onclick="switchTab('announcements')">
+        📢 Avisos Globales en TV
+      </button>
     </div>
 
     <!-- SECCIÓN 1: USUARIOS Y DISPOSITIVOS -->
@@ -925,6 +928,99 @@
         </table>
       </div>
     </div>
+
+    <!-- SECCIÓN 3: GESTOR DE AVISOS GLOBALES EN TV -->
+    <div id="sectionAnnouncements" style="display: none;">
+      <div class="metrics-grid">
+        <div class="metric-card cyan">
+          <span class="metric-label">Estado de Emisión</span>
+          <span class="metric-val" id="announcementStatusBadge" style="font-size: 1.3rem; color: var(--cyan-accent);">Inactivo</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">ID del Comunicado</span>
+          <span class="metric-val" id="announcementCurrentId" style="font-size: 1.1rem; color: #a0a0b8;">-</span>
+        </div>
+        <div class="metric-card amber">
+          <span class="metric-label">Última Actualización</span>
+          <span class="metric-val" id="announcementLastUpdate" style="font-size: 1.1rem; color: #fbbf24;">-</span>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; align-items: start;">
+        <!-- Formulario de Emisión -->
+        <div class="card-panel">
+          <h3 class="card-title" style="margin-bottom: 16px;">
+            <span>📢</span>
+            <span>Publicar o Editar Comunicado Global</span>
+          </h3>
+
+          <form id="announcementForm" onsubmit="handleSaveAnnouncement(event)">
+            <div class="form-group" style="margin-bottom: 14px;">
+              <label for="annTitle">Título del Aviso *</label>
+              <input type="text" id="annTitle" class="form-control" placeholder="Ej: ¡Actualización Importante!" required oninput="updateAnnouncementPreview()">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 14px;">
+              <label for="annMessage">Cuerpo del Mensaje / Guía *</label>
+              <textarea id="annMessage" class="form-control" rows="4" placeholder="Escribe las instrucciones o comunicado que se mostrará en los televisores..." required oninput="updateAnnouncementPreview()"></textarea>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 14px;">
+              <label for="annImageUrl">URL de Imagen / Código QR (Opcional)</label>
+              <input type="url" id="annImageUrl" class="form-control" placeholder="https://ejemplo.com/qr_soporte.png" oninput="updateAnnouncementPreview()">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 16px;">
+              <label for="annButtonText">Texto del Botón de Confirmación</label>
+              <input type="text" id="annButtonText" class="form-control" value="Entendido" required oninput="updateAnnouncementPreview()">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 20px;">
+              <label class="form-checkbox-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <input type="checkbox" id="annActive" checked onchange="updateAnnouncementPreview()">
+                <span style="font-weight: 700; color: white;">Aviso Activo en TV (Mostrar a los usuarios)</span>
+              </label>
+            </div>
+
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+              <button type="submit" id="btnPublishAnnouncement" class="btn-action" style="flex: 1; justify-content: center; background: linear-gradient(135deg, #00e5ff 0%, #7c4dff 100%);">
+                🚀 Publicar / Actualizar Aviso
+              </button>
+              <button type="button" class="btn-action" style="background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.4); color: #fca5a5;" onclick="deactivateAnnouncement()">
+                ⛔ Desactivar Aviso Actual
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Previsualización en Vivo de la TV -->
+        <div class="card-panel">
+          <h3 class="card-title" style="margin-bottom: 16px;">
+            <span>📺</span>
+            <span>Simulador de Pantalla TV (Previsualización en Vivo)</span>
+          </h3>
+
+          <div style="background: #000; border: 2px solid #222; border-radius: 16px; padding: 24px 16px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; min-height: 380px;">
+            <!-- Modal TV Semitransparente -->
+            <div id="tvPreviewModal" style="width: 80%; background: rgba(0, 0, 0, 0.85); border: 1.5px solid rgba(0, 229, 255, 0.6); border-radius: 16px; padding: 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; box-shadow: 0 0 30px rgba(0, 229, 255, 0.2);">
+              <h4 id="prevTitle" style="color: white; font-size: 1.15rem; font-weight: 800;">¡Actualización Importante!</h4>
+              
+              <div id="prevImageWrap" style="height: 120px; display: none; background: rgba(255,255,255,0.05); border-radius: 10px; padding: 6px; border: 1px solid rgba(255,255,255,0.1);">
+                <img id="prevImg" src="" alt="QR" style="height: 100%; object-fit: contain;">
+              </div>
+
+              <p id="prevMessage" style="color: rgba(255, 255, 255, 0.88); font-size: 0.85rem; line-height: 1.4; max-height: 120px; overflow-y: auto;">
+                Hemos optimizado el motor de reproducción. Si experimentas problemas, escanea el código QR con tu móvil para soporte.
+              </p>
+
+              <button type="button" id="prevBtn" style="background: #00e5ff; color: black; font-weight: 800; border: none; border-radius: 8px; padding: 8px 24px; font-size: 0.85rem; cursor: pointer; margin-top: 4px;">
+                Entendido
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 
   <div id="toastContainer"></div>
@@ -975,6 +1071,7 @@
         // Cargar datos
         fetchUsers();
         initChannelsListener();
+        loadCurrentAnnouncement();
       } else {
         overlay.style.display = "flex";
         app.style.display = "none";
@@ -1024,19 +1121,21 @@
     function switchTab(tab) {
       const tabUsers = document.getElementById("sectionUsers");
       const tabChannels = document.getElementById("sectionChannels");
+      const tabAnnouncements = document.getElementById("sectionAnnouncements");
       const btnUsers = document.getElementById("tabBtnUsers");
       const btnChannels = document.getElementById("tabBtnChannels");
+      const btnAnnouncements = document.getElementById("tabBtnAnnouncements");
 
-      if (tab === 'users') {
-        tabUsers.style.display = "block";
-        tabChannels.style.display = "none";
-        btnUsers.classList.add("active");
-        btnChannels.classList.remove("active");
-      } else {
-        tabUsers.style.display = "none";
-        tabChannels.style.display = "block";
-        btnUsers.classList.remove("active");
-        btnChannels.classList.add("active");
+      tabUsers.style.display = (tab === 'users') ? 'block' : 'none';
+      tabChannels.style.display = (tab === 'channels') ? 'block' : 'none';
+      tabAnnouncements.style.display = (tab === 'announcements') ? 'block' : 'none';
+
+      btnUsers.classList.toggle("active", tab === 'users');
+      btnChannels.classList.toggle("active", tab === 'channels');
+      btnAnnouncements.classList.toggle("active", tab === 'announcements');
+
+      if (tab === 'announcements') {
+        loadCurrentAnnouncement();
       }
     }
 
@@ -1467,6 +1566,149 @@
       } catch (err) {
         console.error("Error al sincronizar canales:", err);
         showToast("Error al sincronizar canales: " + err.message, "error");
+      }
+    }
+
+    // MÓDULO: GESTIÓN DE AVISOS GLOBALES EN TV
+    async function loadCurrentAnnouncement() {
+      try {
+        const snap = await database.ref('global_announcements').once('value');
+        const data = snap.val();
+        if (data) {
+          document.getElementById('annTitle').value = data.title || "";
+          document.getElementById('annMessage').value = data.message || "";
+          document.getElementById('annImageUrl').value = data.imageUrl || "";
+          document.getElementById('annButtonText').value = data.buttonText || "Entendido";
+          document.getElementById('annActive').checked = data.active !== false;
+
+          const badge = document.getElementById('announcementStatusBadge');
+          if (data.active !== false) {
+            badge.textContent = "🟢 Activo en TV";
+            badge.style.color = "#4ade80";
+          } else {
+            badge.textContent = "⛔ Desactivado";
+            badge.style.color = "#f87171";
+          }
+
+          document.getElementById('announcementCurrentId').textContent = data.id || "-";
+          
+          if (data.updatedAt) {
+            const dt = new Date(data.updatedAt);
+            document.getElementById('announcementLastUpdate').textContent = dt.toLocaleDateString() + " " + dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+          } else {
+            document.getElementById('announcementLastUpdate').textContent = "Publicado";
+          }
+        } else {
+          document.getElementById('announcementStatusBadge').textContent = "⚪ Sin Aviso Creado";
+          document.getElementById('announcementStatusBadge').style.color = "#a0a0b8";
+          document.getElementById('announcementCurrentId').textContent = "-";
+          document.getElementById('announcementLastUpdate').textContent = "-";
+        }
+        updateAnnouncementPreview();
+      } catch (err) {
+        console.error("Error al cargar comunicado global:", err);
+      }
+    }
+
+    function updateAnnouncementPreview() {
+      const title = document.getElementById('annTitle')?.value.trim() || "Título del Aviso";
+      const message = document.getElementById('annMessage')?.value.trim() || "Cuerpo del mensaje en el televisor...";
+      const imageUrl = document.getElementById('annImageUrl')?.value.trim() || "";
+      const btnText = document.getElementById('annButtonText')?.value.trim() || "Entendido";
+      const isActive = document.getElementById('annActive')?.checked ?? true;
+
+      const pTitle = document.getElementById('prevTitle');
+      const pMsg = document.getElementById('prevMessage');
+      const pBtn = document.getElementById('prevBtn');
+      if (pTitle) pTitle.textContent = title;
+      if (pMsg) pMsg.textContent = message;
+      if (pBtn) pBtn.textContent = btnText;
+
+      const imgWrap = document.getElementById('prevImageWrap');
+      const img = document.getElementById('prevImg');
+      if (imgWrap && img) {
+        if (imageUrl) {
+          img.src = imageUrl;
+          imgWrap.style.display = "block";
+        } else {
+          imgWrap.style.display = "none";
+        }
+      }
+
+      const modal = document.getElementById('tvPreviewModal');
+      if (modal) {
+        if (isActive) {
+          modal.style.borderColor = "rgba(0, 229, 255, 0.6)";
+          modal.style.boxShadow = "0 0 30px rgba(0, 229, 255, 0.2)";
+        } else {
+          modal.style.borderColor = "rgba(239, 68, 68, 0.5)";
+          modal.style.boxShadow = "0 0 20px rgba(239, 68, 68, 0.2)";
+        }
+      }
+    }
+
+    async function handleSaveAnnouncement(e) {
+      e.preventDefault();
+      const title = document.getElementById('annTitle').value.trim();
+      const message = document.getElementById('annMessage').value.trim();
+      const imageUrl = document.getElementById('annImageUrl').value.trim();
+      const buttonText = document.getElementById('annButtonText').value.trim() || "Entendido";
+      const active = document.getElementById('annActive').checked;
+      const btn = document.getElementById('btnPublishAnnouncement');
+
+      btn.disabled = true;
+      btn.innerHTML = `<span class="loading-spinner"></span> Publicando...`;
+
+      try {
+        const id = "aviso_" + Date.now();
+        const payload = {
+          id: id,
+          active: active,
+          title: title,
+          message: message,
+          imageUrl: imageUrl,
+          buttonText: buttonText,
+          updatedAt: Date.now()
+        };
+
+        await database.ref('global_announcements').set(payload);
+        if (firestore) {
+          try {
+            await firestore.collection("config").doc("global_announcements").set(payload);
+          } catch (_) {}
+        }
+
+        showToast("¡Aviso global publicado con éxito en TV!", "success");
+        loadCurrentAnnouncement();
+      } catch (err) {
+        console.error("Error publicando aviso:", err);
+        showToast("Error al publicar aviso: " + err.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `🚀 Publicar / Actualizar Aviso`;
+      }
+    }
+
+    async function deactivateAnnouncement() {
+      if (!confirm("¿Deseas desactivar el comunicado actual? Dejará de mostrarse en los televisores.")) return;
+
+      try {
+        await database.ref('global_announcements').update({
+          active: false,
+          updatedAt: Date.now()
+        });
+        if (firestore) {
+          try {
+            await firestore.collection("config").doc("global_announcements").update({ active: false });
+          } catch (_) {}
+        }
+        const activeChk = document.getElementById('annActive');
+        if (activeChk) activeChk.checked = false;
+        showToast("Aviso global desactivado correctamente", "success");
+        loadCurrentAnnouncement();
+      } catch (err) {
+        console.error("Error desactivando aviso:", err);
+        showToast("Error al desactivar aviso: " + err.message, "error");
       }
     }
 
