@@ -1,0 +1,19 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "cleanUrls": true,
+    "redirects": [
+      {
+        "source": "/descargar",
+        "destination": "https://felipesalle.github.io/teveflipe-app-updates/app-armeabi-v7a-debug.apk",
+        "type": 302
+      }
+    ]
+  }
+}
