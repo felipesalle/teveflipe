@@ -745,6 +745,9 @@
       <button id="tabBtnAnnouncements" class="tab-btn" onclick="switchTab('announcements')">
         📢 Avisos Globales en TV
       </button>
+      <button id="tabBtnBunker" class="tab-btn" onclick="switchTab('bunker')">
+        🛡️ Estado del Búnker & Backups
+      </button>
     </div>
 
     <!-- SECCIÓN 1: USUARIOS Y DISPOSITIVOS -->
@@ -1021,7 +1024,126 @@
         </div>
       </div>
     </div>
+
+    <!-- SECCIÓN 4: ESTADO DEL BÚNKER Y BACKUPS -->
+    <div id="sectionBunker" style="display: none;">
+      <!-- Métricas del Búnker -->
+      <div class="metrics-grid">
+        <div class="metric-card cyan">
+          <span class="metric-label">🛡️ Canales Protegidos</span>
+          <span class="metric-val" id="bunkerTotalCount">0</span>
+        </div>
+        <div class="metric-card green">
+          <span class="metric-label">🟢 Sincronizados al 100%</span>
+          <span class="metric-val" style="color: var(--green-accent);" id="bunkerSyncedCount">0</span>
+        </div>
+        <div class="metric-card amber">
+          <span class="metric-label">🟡 En Proceso / Pendientes</span>
+          <span class="metric-val" style="color: var(--amber-accent);" id="bunkerPendingCount">0</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">📡 Estado del Daemon</span>
+          <span class="metric-val" id="bunkerDaemonStatus" style="font-size: 1.3rem; color: #60a5fa;">En Espera</span>
+        </div>
+      </div>
+
+      <!-- Tarjeta informativa de Arquitectura y Acciones -->
+      <div class="card-panel" style="margin-bottom: 24px; background: linear-gradient(135deg, rgba(124, 77, 255, 0.1) 0%, rgba(0, 229, 255, 0.05) 100%); border-left: 4px solid var(--purple-primary);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+          <div>
+            <h3 style="font-family: var(--font-title); font-size: 1.25rem; font-weight: 800; color: white; display: flex; align-items: center; gap: 8px;">
+              <span>🛡️</span>
+              <span>Arquitectura Búnker: Protección y Replicación Aislada</span>
+            </h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; max-width: 850px;">
+              Los canales maestros residen en la <strong>Cuenta 1 (Búnker)</strong> de forma 100% privada e invisible. La <strong>Cuenta 2 (Producción)</strong> replica el contenido hacia los usuarios mediante túnel seguro con <code style="color: var(--cyan-accent);">drop_author=True</code>. Si un canal de producción es reportado o bloqueado, la infraestructura Búnker permanece intacta y el canal se repuebla en minutos actualizando Firebase automáticamente.
+            </p>
+          </div>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-secondary" onclick="requestBunkerGlobalSync()" style="display: inline-flex; align-items: center; gap: 6px;">
+              <span>🔄</span>
+              <span>Solicitar Sync Global</span>
+            </button>
+            <button type="button" class="btn" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none;" onclick="openEmergencyRecoveryModal()">
+              <span>🚨</span>
+              <span>Reemplazar Canal Caído</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de Estado de Canales Búnker -->
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Canal / Categoría</th>
+              <th>Canal Búnker (Protegido)</th>
+              <th>Canal Producción</th>
+              <th>Progreso / Mensajes</th>
+              <th>Estado Replicación</th>
+              <th>Enlace de Invitación</th>
+              <th style="text-align: right;">Acciones Rápidas</th>
+            </tr>
+          </thead>
+          <tbody id="bunkerTableBody">
+            <tr>
+              <td colspan="7" class="empty-state">
+                <div class="loading-spinner"></div>
+                <p style="margin-top: 12px;">Cargando estado del búnker desde Firebase...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </main>
+
+  <!-- MODAL DE EMERGENCIA: RECUPERACIÓN Y REEMPLAZO DE CANAL -->
+  <div id="recoveryModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3 class="modal-title" style="color: #ef4444; display: flex; align-items: center; gap: 8px;">
+          <span>🚨</span>
+          <span>Protocolo de Emergencia: Reemplazar Canal Caído</span>
+        </h3>
+        <button type="button" class="close-btn" onclick="closeEmergencyRecoveryModal()">&times;</button>
+      </div>
+
+      <div style="margin: 16px 0; font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">
+        <p>Este procedimiento realiza las siguientes acciones automatizadas:</p>
+        <ol style="margin: 10px 0 10px 20px;">
+          <li>Crea un nuevo canal en la <strong>Cuenta de Producción</strong>.</li>
+          <li>Genera un enlace de invitación privado y permanente.</li>
+          <li>Vuelca el catálogo completo de vídeos desde el <strong>Canal Búnker</strong>.</li>
+          <li>Actualiza Firestore y Realtime Database. La app Android TV apuntará al nuevo enlace en su próximo inicio <strong>sin tocar el APK</strong>.</li>
+        </ol>
+      </div>
+
+      <form id="emergencyRecoveryForm" onsubmit="executeEmergencyRecovery(event)">
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label for="recoveryChannelSelect">Selecciona el Canal Afectado *</label>
+          <select id="recoveryChannelSelect" class="form-control" required>
+            <option value="">Seleccione un canal...</option>
+          </select>
+        </div>
+
+        <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px; padding: 12px; margin-bottom: 18px; font-size: 0.85rem; color: #fca5a5;">
+          ⚠️ <strong>Atención:</strong> Para ejecutar el volcado seguro con tus credenciales de Telegram, también puedes ejecutar en tu consola:
+          <div style="background: #0a0a12; padding: 8px; border-radius: 6px; margin-top: 6px; font-family: monospace; color: var(--cyan-accent);" id="cliRecoveryCommand">
+            python sync_bunker/recovery_tool.py --channel=...
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+          <button type="button" class="btn btn-secondary" onclick="closeEmergencyRecoveryModal()">Cancelar</button>
+          <button type="submit" class="btn" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none;">
+            🚀 Iniciar Reemplazo Inmediato
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <div id="toastContainer"></div>
 
@@ -1071,6 +1193,7 @@
         // Cargar datos
         fetchUsers();
         initChannelsListener();
+        initBunkerListener();
         loadCurrentAnnouncement();
       } else {
         overlay.style.display = "flex";
@@ -1122,20 +1245,27 @@
       const tabUsers = document.getElementById("sectionUsers");
       const tabChannels = document.getElementById("sectionChannels");
       const tabAnnouncements = document.getElementById("sectionAnnouncements");
+      const tabBunker = document.getElementById("sectionBunker");
       const btnUsers = document.getElementById("tabBtnUsers");
       const btnChannels = document.getElementById("tabBtnChannels");
       const btnAnnouncements = document.getElementById("tabBtnAnnouncements");
+      const btnBunker = document.getElementById("tabBtnBunker");
 
       tabUsers.style.display = (tab === 'users') ? 'block' : 'none';
       tabChannels.style.display = (tab === 'channels') ? 'block' : 'none';
       tabAnnouncements.style.display = (tab === 'announcements') ? 'block' : 'none';
+      tabBunker.style.display = (tab === 'bunker') ? 'block' : 'none';
 
       btnUsers.classList.toggle("active", tab === 'users');
       btnChannels.classList.toggle("active", tab === 'channels');
       btnAnnouncements.classList.toggle("active", tab === 'announcements');
+      btnBunker.classList.toggle("active", tab === 'bunker');
 
       if (tab === 'announcements') {
         loadCurrentAnnouncement();
+      }
+      if (tab === 'bunker') {
+        renderBunkerTable();
       }
     }
 
@@ -1742,6 +1872,225 @@
     function escapeHtml(str) {
       if (!str) return "";
       return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
+    }
+
+    // MÓDULO: ESTADO DEL BÚNKER Y BACKUPS
+    let bunkerStatusMap = {};
+
+    function initBunkerListener() {
+      // 1. Escuchar Realtime Database
+      database.ref('backup_status').on('value', snapshot => {
+        bunkerStatusMap = snapshot.val() || {};
+        renderBunkerTable();
+      });
+
+      // 2. Escuchar Firestore (si está habilitado)
+      if (firestore) {
+        try {
+          firestore.collection('backup_status').onSnapshot(snapshot => {
+            snapshot.forEach(doc => {
+              bunkerStatusMap[doc.id] = { ...bunkerStatusMap[doc.id], ...doc.data() };
+            });
+            renderBunkerTable();
+          });
+        } catch (e) {
+          console.warn("Firestore backup_status fallback:", e);
+        }
+      }
+
+      // 3. Escuchar estado general del daemon / solicitudes
+      database.ref('config/sync_request').on('value', snap => {
+        const val = snap.val();
+        const badge = document.getElementById("bunkerDaemonStatus");
+        if (badge) {
+          if (val && val.status === 'running') {
+            badge.textContent = "🟡 Replicando...";
+            badge.style.color = "var(--amber-accent)";
+          } else if (val && val.status === 'completed') {
+            badge.textContent = "🟢 Al Día";
+            badge.style.color = "var(--green-accent)";
+          } else {
+            badge.textContent = "En Espera";
+            badge.style.color = "#60a5fa";
+          }
+        }
+      });
+    }
+
+    function renderBunkerTable() {
+      const tbody = document.getElementById("bunkerTableBody");
+      if (!tbody) return;
+
+      const channelsList = allChannels && allChannels.length > 0 ? allChannels : [
+        { id: -1002146236969, name: "REPOSITORIO DE PELÍCULAS", category: "peliculas", inviteLink: "https://t.me/joinchat/MkmiqG81Wq1kYTJj" },
+        { id: -1002097175258, name: "SERIES TV", category: "series", inviteLink: "https://t.me/joinchat/9jxzu1QTtmFjYjRj" },
+        { id: -1004419790119, name: "Series Españolas", category: "series", inviteLink: "https://t.me/joinchat/69qsybL6zbplZDRj" },
+        { id: -1004388643765, name: "Películas Clásicas", category: "clasicos", inviteLink: "https://t.me/joinchat/MJLcOPqptq05YTJj" },
+        { id: -1004316187715, name: "Cine de los 80 y 90", category: "peliculas", inviteLink: "https://t.me/joinchat/iBFj892Hwak4Njcz" },
+        { id: -1004383923903, name: "🎬 Películas Infantiles", category: "kids", inviteLink: "https://t.me/joinchat/mEtc35MtvH1mMjUz" },
+        { id: -1004385066808, name: "Series Infantiles", category: "infantil", inviteLink: "https://t.me/joinchat/zzFmAUwKqw45MDcz" },
+        { id: -1004440781202, name: "🎬 Películas Anime", category: "anime", inviteLink: "https://t.me/joinchat/MfhT8wVNihg2OTBj" },
+        { id: -1004445501873, name: "📺 Series Anime", category: "anime", inviteLink: "https://t.me/joinchat/-Co-U4T6sMM2MWMz" },
+        { id: -1004488255668, name: "📺 Series Asiáticas", category: "series", inviteLink: "https://t.me/+J66sn_wmzXA5NDBj" }
+      ];
+
+      let syncedCount = 0;
+      let pendingCount = 0;
+
+      const recSelect = document.getElementById("recoveryChannelSelect");
+      if (recSelect) {
+        const curVal = recSelect.value;
+        recSelect.innerHTML = `<option value="">Seleccione un canal...</option>` + channelsList.map(c => 
+          `<option value="${c.id}">${escapeHtml(c.name)} (${c.id})</option>`
+        ).join("");
+        if (curVal) recSelect.value = curVal;
+      }
+
+      tbody.innerHTML = channelsList.map(c => {
+        const key = String(c.id);
+        const statusData = bunkerStatusMap[key] || bunkerStatusMap[c.name] || {};
+
+        const bunkerIdDisplay = statusData.bunker_id ? `<code>${statusData.bunker_id}</code>` : `<span style="color: var(--cyan-accent); font-size: 0.85rem;">🔒 Búnker Oculto</span>`;
+        const prodIdDisplay = `<code>${c.id}</code>`;
+
+        let estadoBadge = `<span class="badge-pill badge-active" style="background: rgba(34, 197, 94, 0.15); color: #4ade80;">🟢 Sincronizado</span>`;
+        const rawStatus = (statusData.estado || 'sincronizado').toLowerCase();
+
+        if (rawStatus === 'sincronizando') {
+          estadoBadge = `<span class="badge-pill badge-pending" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">🟡 Sincronizando...</span>`;
+          pendingCount++;
+        } else if (rawStatus === 'error' || c.active === false) {
+          estadoBadge = `<span class="badge-pill badge-blocked" style="background: rgba(239, 68, 68, 0.15); color: #f87171;">🔴 Caído / Error</span>`;
+          pendingCount++;
+        } else {
+          syncedCount++;
+        }
+
+        const bunkerTotal = statusData.total_bunker || 'Detectando';
+        const prodTotal = statusData.total_prod || statusData.ultimo_id_sincronizado || 'Al día';
+        const progressDisplay = `<span style="font-size: 0.88rem;"><strong>${prodTotal}</strong> / ${bunkerTotal} msgs</span>`;
+
+        const linkDisplay = c.inviteLink ? `
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <a href="${c.inviteLink}" target="_blank" style="color: var(--cyan-accent); text-decoration: none; font-size: 0.85rem; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${c.inviteLink}</a>
+            <button type="button" class="btn-sm" style="padding: 2px 6px; font-size: 0.75rem;" onclick="navigator.clipboard.writeText('${c.inviteLink}').then(() => showToast('¡Enlace copiado!'))">📋</button>
+          </div>
+        ` : `<span style="color: var(--text-muted); font-size: 0.8rem;">Sin enlace</span>`;
+
+        return `
+          <tr>
+            <td>
+              <div style="font-weight: 700; color: white;">${escapeHtml(c.name)}</div>
+              <span class="badge-pill badge-cat-${c.category || 'general'}" style="font-size: 0.7rem; margin-top: 4px; display: inline-block;">${(c.category || 'CANAL').toUpperCase()}</span>
+            </td>
+            <td>${bunkerIdDisplay}</td>
+            <td>${prodIdDisplay}</td>
+            <td>${progressDisplay}</td>
+            <td>${estadoBadge}</td>
+            <td>${linkDisplay}</td>
+            <td style="text-align: right;">
+              <div style="display: inline-flex; gap: 6px;">
+                <button type="button" class="btn-sm" title="Forzar Sincronización Inmediata" onclick="forceBunkerSync('${c.id}', '${escapeHtml(c.name)}')">
+                  🔄
+                </button>
+                <button type="button" class="btn-sm" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5;" title="Reemplazar Canal Caído" onclick="openEmergencyRecoveryModal('${c.id}')">
+                  🚨
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+
+      const elTotal = document.getElementById("bunkerTotalCount");
+      const elSynced = document.getElementById("bunkerSyncedCount");
+      const elPending = document.getElementById("bunkerPendingCount");
+      if (elTotal) elTotal.textContent = channelsList.length;
+      if (elSynced) elSynced.textContent = syncedCount;
+      if (elPending) elPending.textContent = pendingCount;
+    }
+
+    async function requestBunkerGlobalSync() {
+      try {
+        await database.ref('config/sync_request').set({
+          requestedAt: Date.now(),
+          mode: 'incremental',
+          status: 'pending',
+          requestedBy: currentUser ? currentUser.email : 'admin'
+        });
+        showToast("🔄 Solicitud de Sincronización Global enviada al Daemon Búnker", "success");
+      } catch (err) {
+        console.error("Error solicitando sync global:", err);
+        showToast("Error: " + err.message, "error");
+      }
+    }
+
+    async function forceBunkerSync(channelId, channelName) {
+      try {
+        await database.ref(`config/sync_request`).set({
+          channelId: channelId,
+          channelName: channelName,
+          requestedAt: Date.now(),
+          mode: 'incremental',
+          status: 'pending',
+          requestedBy: currentUser ? currentUser.email : 'admin'
+        });
+        showToast(`🔄 Solicitud de sincronización enviada para ${channelName}`, "success");
+      } catch (err) {
+        showToast("Error: " + err.message, "error");
+      }
+    }
+
+    function openEmergencyRecoveryModal(preselectId) {
+      const modal = document.getElementById("recoveryModal");
+      if (!modal) return;
+      modal.style.display = "flex";
+      const sel = document.getElementById("recoveryChannelSelect");
+      if (sel && preselectId) {
+        sel.value = preselectId;
+      }
+      updateCliRecoveryHint();
+    }
+
+    function closeEmergencyRecoveryModal() {
+      const modal = document.getElementById("recoveryModal");
+      if (modal) modal.style.display = "none";
+    }
+
+    function updateCliRecoveryHint() {
+      const sel = document.getElementById("recoveryChannelSelect");
+      const hint = document.getElementById("cliRecoveryCommand");
+      if (sel && hint) {
+        const val = sel.value || "<ID_CANAL>";
+        hint.textContent = `python sync_bunker/recovery_tool.py --channel=${val}`;
+      }
+    }
+
+    document.getElementById("recoveryChannelSelect")?.addEventListener("change", updateCliRecoveryHint);
+
+    async function executeEmergencyRecovery(e) {
+      e.preventDefault();
+      const sel = document.getElementById("recoveryChannelSelect");
+      const channelId = sel ? sel.value : "";
+      if (!channelId) {
+        showToast("Selecciona un canal para recuperar", "error");
+        return;
+      }
+
+      const cmd = `python sync_bunker/recovery_tool.py --channel=${channelId}`;
+      try {
+        await navigator.clipboard.writeText(cmd);
+        await database.ref('config/emergency_recovery_request').set({
+          channelId: channelId,
+          requestedAt: Date.now(),
+          requestedBy: currentUser ? currentUser.email : 'admin'
+        });
+        showToast("🚨 Comando copiado al portapapeles y alerta de recuperación emitida en Firebase", "success");
+        closeEmergencyRecoveryModal();
+      } catch (err) {
+        showToast("Comando listo: " + cmd, "success");
+        closeEmergencyRecoveryModal();
+      }
     }
 
     document.getElementById("searchInput").addEventListener("input", renderUsersTable);
