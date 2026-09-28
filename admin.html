@@ -1261,6 +1261,9 @@
     let userFilter = 'todos';
     let allChannels = [];
 
+    // LISTA BLANCA DE ADMINISTRADORES
+    const ADMIN_WHITELIST = ['flipeloflipa@gmail.com'];
+
     // CONTROL DE AUTENTICACIÓN
     auth.onAuthStateChanged(user => {
       currentUser = user;
@@ -1268,8 +1271,24 @@
       const app = document.getElementById("adminApp");
       const emailBadge = document.getElementById("authEmailBadge");
       const btnLogout = document.getElementById("btnLogout");
+      const errorDiv = document.getElementById("loginError");
 
       if (user) {
+        const userEmail = (user.email || '').toLowerCase().trim();
+        if (!ADMIN_WHITELIST.includes(userEmail)) {
+          // Si no es el administrador, cerrar sesión y denegar acceso inmediatamente
+          auth.signOut();
+          overlay.style.display = "flex";
+          app.style.display = "none";
+          emailBadge.style.display = "none";
+          btnLogout.style.display = "none";
+          if (errorDiv) {
+            errorDiv.style.display = "block";
+            errorDiv.textContent = "⛔ Acceso denegado: Esta cuenta no tiene permisos de administrador.";
+          }
+          return;
+        }
+
         overlay.style.display = "none";
         app.style.display = "block";
         emailBadge.style.display = "inline-block";
