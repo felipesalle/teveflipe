@@ -13,7 +13,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
   <style>
     :root {
@@ -1027,19 +1026,41 @@
 
     <!-- SECCIÓN 4: ESTADO DEL BÚNKER Y BACKUPS -->
     <div id="sectionBunker" style="display: none;">
+      <!-- Encabezado de Progreso de Blindaje Hero -->
+      <div class="card-panel" style="background: linear-gradient(135deg, rgba(20, 20, 38, 0.95), rgba(10, 10, 24, 0.98)); border: 1px solid rgba(0, 229, 255, 0.25); border-radius: 18px; padding: 22px 26px; margin-bottom: 24px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 14px;">
+          <div>
+            <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.2px; color: var(--cyan-accent); font-weight: 800;">
+              🛡️ ARQUITECTURA BÚNKER DE PROTECCIÓN TEVEFLIPE
+            </div>
+            <div style="font-family: var(--font-title); font-size: 1.65rem; font-weight: 800; color: white; margin-top: 4px;">
+              Estado de Blindaje: <span id="bunkerHeroSynced" style="color: var(--green-accent);">3</span> / <span id="bunkerHeroTotal">12</span> Canales Replicados en Cuenta 2
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div id="bunkerHeroPercent" style="font-family: var(--font-title); font-size: 2.2rem; font-weight: 900; color: var(--green-accent); line-height: 1;">25.0%</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Canales Blindados</div>
+          </div>
+        </div>
+        <!-- Barra de progreso visual -->
+        <div style="background: rgba(255,255,255,0.08); border-radius: 999px; height: 12px; overflow: hidden; position: relative;">
+          <div id="bunkerProgressBar" style="background: linear-gradient(90deg, #22c55e, #00e5ff); height: 100%; width: 25.0%; transition: width 0.5s ease; border-radius: 999px; box-shadow: 0 0 14px rgba(0, 229, 255, 0.6);"></div>
+        </div>
+      </div>
+
       <!-- Métricas del Búnker -->
       <div class="metrics-grid">
         <div class="metric-card cyan">
-          <span class="metric-label">🛡️ Canales Protegidos</span>
-          <span class="metric-val" id="bunkerTotalCount">0</span>
+          <span class="metric-label">🛡️ Canales en Búnker</span>
+          <span class="metric-val" id="bunkerTotalCount">12</span>
         </div>
         <div class="metric-card green">
-          <span class="metric-label">🟢 Sincronizados al 100%</span>
-          <span class="metric-val" style="color: var(--green-accent);" id="bunkerSyncedCount">0</span>
+          <span class="metric-label">🟢 Blindados en Cuenta 2</span>
+          <span class="metric-val" style="color: var(--green-accent);" id="bunkerSyncedCount">3</span>
         </div>
         <div class="metric-card amber">
-          <span class="metric-label">🟡 En Proceso / Pendientes</span>
-          <span class="metric-val" style="color: var(--amber-accent);" id="bunkerPendingCount">0</span>
+          <span class="metric-label">⚠️ Sin Respaldo en Cuenta 2</span>
+          <span class="metric-val" style="color: var(--amber-accent);" id="bunkerPendingCount">9</span>
         </div>
         <div class="metric-card">
           <span class="metric-label">📡 Estado del Daemon</span>
@@ -1060,9 +1081,17 @@
             </p>
           </div>
           <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-primary" onclick="openAddBunkerChannelModal()" style="display: inline-flex; align-items: center; gap: 6px;">
+              <span>➕</span>
+              <span>Agregar Canal al Búnker</span>
+            </button>
             <button type="button" class="btn btn-secondary" onclick="requestBunkerGlobalSync()" style="display: inline-flex; align-items: center; gap: 6px;">
               <span>🔄</span>
               <span>Solicitar Sync Global</span>
+            </button>
+            <button type="button" class="btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; font-weight: 700; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35); display: inline-flex; align-items: center; gap: 6px;" onclick="publishAllBlindadosToFirebase()">
+              <span>📲</span>
+              <span>Cargar Blindados en Canales Oficiales</span>
             </button>
             <button type="button" class="btn" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none;" onclick="openEmergencyRecoveryModal()">
               <span>🚨</span>
@@ -1077,13 +1106,11 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th>Canal / Categoría</th>
-              <th>Canal Búnker (Protegido)</th>
-              <th>Canal Producción</th>
-              <th>Progreso / Mensajes</th>
-              <th>Estado Replicación</th>
-              <th>Enlace de Invitación</th>
-              <th style="text-align: right;">Acciones Rápidas</th>
+              <th>Canal / Tipo</th>
+              <th>Cuenta 1 (Búnker Maestro)</th>
+              <th>Cuenta 2 (Producción)</th>
+              <th>Estado de Blindaje</th>
+              <th style="text-align: right;">Acción Inmediata</th>
             </tr>
           </thead>
           <tbody id="bunkerTableBody">
@@ -1145,6 +1172,70 @@
     </div>
   </div>
 
+  <!-- MODAL: AGREGAR CANAL AL BÚNKER -->
+  <div id="addBunkerChannelModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3 class="modal-title" style="color: var(--cyan-accent); display: flex; align-items: center; gap: 8px;">
+          <span>➕</span>
+          <span>Añadir Canal Existente al Búnker</span>
+        </h3>
+        <button type="button" class="close-btn" onclick="closeAddBunkerChannelModal()">&times;</button>
+      </div>
+
+      <div style="margin: 14px 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+        Registra un canal existente de tu Cuenta Búnker (Flipe) para monitorizarlo y habilitar su replicación automatizada hacia la Cuenta 2.
+      </div>
+
+      <form id="addBunkerChannelForm" onsubmit="saveNewBunkerChannel(event)">
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label for="newBunkerSlug">Identificador / Slug Único * (ej: series_retro)</label>
+          <input type="text" id="newBunkerSlug" class="form-control" placeholder="series_retro" required style="font-family: monospace;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label for="newBunkerProdName">Nombre para Producción *</label>
+          <input type="text" id="newBunkerProdName" class="form-control" placeholder="📺 Series Retro y Clásicas - TeVeFLIPE" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label for="newBunkerId">ID del Canal en Búnker * (ej: -1003971365582)</label>
+          <input type="text" id="newBunkerId" class="form-control" placeholder="-1003971365582" required style="font-family: monospace;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label for="newBunkerName">Nombre del Canal en Búnker</label>
+          <input type="text" id="newBunkerName" class="form-control" placeholder="📺 Series Retro y Clásicas - TeveFlipe">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px;">
+          <div class="form-group">
+            <label for="newBunkerCategory">Categoría *</label>
+            <select id="newBunkerCategory" class="form-control">
+              <option value="series">Series TV</option>
+              <option value="peliculas">Películas</option>
+              <option value="clasicos">Clásicos</option>
+              <option value="kids">Infantil / Kids</option>
+              <option value="anime">Anime</option>
+              <option value="general">General</option>
+            </select>
+          </div>
+          <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 24px;">
+            <input type="checkbox" id="newBunkerIsForum" style="width: 18px; height: 18px; accent-color: var(--cyan-accent); cursor: pointer;">
+            <label for="newBunkerIsForum" style="margin: 0; cursor: pointer; font-size: 0.9rem;">¿Es Foro / Temas?</label>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+          <button type="button" class="btn btn-secondary" onclick="closeAddBunkerChannelModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">
+            💾 Registrar en Búnker
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <div id="toastContainer"></div>
 
   <script>
@@ -1163,12 +1254,7 @@
 
     const auth = firebase.auth();
     const database = firebase.database();
-    let firestore = null;
-    try {
-      firestore = firebase.firestore();
-    } catch(e) {
-      console.warn("Firestore SDK initialization fallback:", e);
-    }
+    const firestore = null; // TeVeFLIPE utiliza exclusivamente Realtime Database
 
     let currentUser = null;
     let allUsers = [];
@@ -1456,9 +1542,18 @@
     async function seedSeriesThematicChannels() {
       const thematicSeriesChannels = [
         {
-          id: -1004433726485,
-          name: "📺 Series Turcas y Telenovelas - TeveFlipe",
-          inviteLink: "https://t.me/+pwo8em9FxD4wODFj",
+          id: -1004415457188,
+          name: "✨ Series Turcas y Telenovelas - TeVeFLIPE",
+          inviteLink: "https://t.me/+tvXNYjhQjokzOWQ5",
+          category: "series",
+          isForum: true,
+          active: true,
+          updatedAt: Date.now()
+        },
+        {
+          id: -1004341160346,
+          name: "🥢 Series Asiáticas & Doramas - TeVeFLIPE",
+          inviteLink: "https://t.me/+yU-2lZYNHbJlYzkx",
           category: "series",
           isForum: true,
           active: true,
@@ -1671,14 +1766,14 @@
 
     async function seedNewOfficialChannels() {
       const defaultChannels = [
-        { id: -1002146236969, name: "REPOSITORIO DE PELÍCULAS", inviteLink: "https://t.me/+MkmiqG81Wq1kYTJj", isForum: false, category: "peliculas", active: true },
+        { id: -1003763464899, name: "🎬 Películas Estrenos - TeVeFLIPE", inviteLink: "https://t.me/+VpmsvyK63OplZGIx", isForum: false, category: "peliculas", active: true },
         { id: -1002097175258, name: "SERIES TV", inviteLink: "https://t.me/+9jxzu1QTtmFjYjRj", isForum: true, category: "series", active: true },
         { id: -1004419790119, name: "Series Españolas", inviteLink: "https://t.me/+69qsybL6zbplZDRj", isForum: true, category: "series", active: true },
-        { id: -1004388643765, name: "Películas Clásicas", inviteLink: "https://t.me/+MJLcOPqptq05YTJj", isForum: false, category: "clasicos", active: true },
-        { id: -1004316187715, name: "Cine de los 80 y 90", inviteLink: "https://t.me/+iBFj892Hwak4Njcz", isForum: false, category: "peliculas", active: true },
-        { id: -1004383923903, name: "🎬 Películas Infantiles", inviteLink: "https://t.me/+mEtc35MtvH1mMjUz", isForum: false, category: "kids", active: true },
+        { id: -1003886841797, name: "🎞️ Películas Clásicas - TeVeFLIPE", inviteLink: "https://t.me/+odH9vFdVUtMzOWNh", isForum: false, category: "clasicos", active: true },
+        { id: -1004467288762, name: "📼 Cine de los 80 y 90 - TeVeFLIPE", inviteLink: "https://t.me/+qNjPZZ7F5hFmYmRh", isForum: false, category: "peliculas", active: true },
+        { id: -1004326583216, name: "🎬 Películas Infantiles - TeVeFLIPE", inviteLink: "https://t.me/+FTpg2qBHORMwNTNh", isForum: false, category: "kids", active: true },
         { id: -1004385066808, name: "Series Infantiles", inviteLink: "https://t.me/+zzFmAUwKqw45MDcz", isForum: true, category: "kids", active: true },
-        { id: -1004440781202, name: "🎬 Películas Anime", inviteLink: "https://t.me/+MfhT8wVNihg2OTBj", isForum: false, category: "anime", active: true },
+        { id: -1004300040143, name: "⛩️ Películas Anime - TeVeFLIPE", inviteLink: "https://t.me/+m7sa99fLDM1hODFh", isForum: false, category: "anime", active: true },
         { id: -1004445501873, name: "📺 Series Anime", inviteLink: "https://t.me/+-Co-U4T6sMM2MWMz", isForum: true, category: "anime", active: true }
       ];
 
@@ -1917,23 +2012,169 @@
       });
     }
 
+    let cachedBunkerChannelsList = [];
+
     function renderBunkerTable() {
       const tbody = document.getElementById("bunkerTableBody");
       if (!tbody) return;
 
-      const channelsList = allChannels && allChannels.length > 0 ? allChannels : [
-        { id: -1002146236969, name: "REPOSITORIO DE PELÍCULAS", category: "peliculas", inviteLink: "https://t.me/joinchat/MkmiqG81Wq1kYTJj" },
-        { id: -1002097175258, name: "SERIES TV", category: "series", inviteLink: "https://t.me/joinchat/9jxzu1QTtmFjYjRj" },
-        { id: -1004419790119, name: "Series Españolas", category: "series", inviteLink: "https://t.me/joinchat/69qsybL6zbplZDRj" },
-        { id: -1004388643765, name: "Películas Clásicas", category: "clasicos", inviteLink: "https://t.me/joinchat/MJLcOPqptq05YTJj" },
-        { id: -1004316187715, name: "Cine de los 80 y 90", category: "peliculas", inviteLink: "https://t.me/joinchat/iBFj892Hwak4Njcz" },
-        { id: -1004383923903, name: "🎬 Películas Infantiles", category: "kids", inviteLink: "https://t.me/joinchat/mEtc35MtvH1mMjUz" },
-        { id: -1004385066808, name: "Series Infantiles", category: "infantil", inviteLink: "https://t.me/joinchat/zzFmAUwKqw45MDcz" },
-        { id: -1004440781202, name: "🎬 Películas Anime", category: "anime", inviteLink: "https://t.me/joinchat/MfhT8wVNihg2OTBj" },
-        { id: -1004445501873, name: "📺 Series Anime", category: "anime", inviteLink: "https://t.me/joinchat/-Co-U4T6sMM2MWMz" },
-        { id: -1004488255668, name: "📺 Series Asiáticas", category: "series", inviteLink: "https://t.me/+J66sn_wmzXA5NDBj" }
+      const masterBunkerChannels = [
+        {
+          slug: "peliculas_estrenos",
+          name: "🎬 Películas Estrenos - TeVeFLIPE",
+          category: "peliculas",
+          bunker_id: -1002146236969,
+          bunker_name: "REPOSITORIO DE PELÍCULAS",
+          produccion_id: -1003763464899,
+          inviteLink: "https://t.me/+VpmsvyK63OplZGIx",
+          is_forum: false,
+          msgs: 1882
+        },
+        {
+          slug: "series_tv",
+          name: "📺 Series TV - TeVeFLIPE",
+          category: "series",
+          bunker_id: -1002097175258,
+          bunker_name: "SERIES TV",
+          produccion_id: 0,
+          inviteLink: "",
+          is_forum: true
+        },
+        {
+          slug: "series_espanolas",
+          name: "🇪🇸 Series Españolas - TeVeFLIPE",
+          category: "series",
+          bunker_id: -1004419790119,
+          bunker_name: "Series Españolas",
+          produccion_id: 0,
+          inviteLink: "",
+          is_forum: true
+        },
+        {
+          slug: "peliculas_clasicas",
+          name: "🎞️ Películas Clásicas - TeVeFLIPE",
+          category: "clasicos",
+          bunker_id: -1004388643765,
+          bunker_name: "Películas Clásicas",
+          produccion_id: -1003886841797,
+          inviteLink: "https://t.me/+odH9vFdVUtMzOWNh",
+          is_forum: false,
+          msgs: 1078
+        },
+        {
+          slug: "cine_80_90",
+          name: "📼 Cine de los 80 y 90 - TeVeFLIPE",
+          category: "peliculas",
+          bunker_id: -1004316187715,
+          bunker_name: "Cine de los 80 y 90",
+          produccion_id: -1004467288762,
+          inviteLink: "https://t.me/+qNjPZZ7F5hFmYmRh",
+          is_forum: false,
+          msgs: 5192
+        },
+        {
+          slug: "peliculas_infantiles",
+          name: "🎬 Películas Infantiles - TeVeFLIPE",
+          category: "kids",
+          bunker_id: -1004383923903,
+          bunker_name: "🎬 Películas Infantiles",
+          produccion_id: -1004326583216,
+          inviteLink: "https://t.me/+FTpg2qBHORMwNTNh",
+          is_forum: false,
+          msgs: 485
+        },
+        {
+          slug: "series_infantiles",
+          name: "👶 Series Infantiles - TeVeFLIPE",
+          category: "kids",
+          bunker_id: -1004385066808,
+          bunker_name: "Series Infantiles",
+          produccion_id: 0,
+          inviteLink: "",
+          is_forum: true
+        },
+        {
+          slug: "peliculas_anime",
+          name: "⛩️ Películas Anime - TeVeFLIPE",
+          category: "anime",
+          bunker_id: -1004440781202,
+          bunker_name: "🎬 Películas Anime",
+          produccion_id: -1004300040143,
+          inviteLink: "https://t.me/+m7sa99fLDM1hODFh",
+          is_forum: false,
+          msgs: 135
+        },
+        {
+          slug: "series_anime",
+          name: "💥 Series Anime - TeVeFLIPE",
+          category: "anime",
+          bunker_id: -1004445501873,
+          bunker_name: "📺 Series Anime",
+          produccion_id: -1004445508015,
+          inviteLink: "https://t.me/+6Ovdscxg-Cg1MGYx",
+          is_forum: true,
+          msgs: 12987
+        },
+        {
+          slug: "series_asiaticas",
+          name: "🥢 Series Asiáticas & Doramas - TeVeFLIPE",
+          category: "series",
+          bunker_id: -1004488255668,
+          bunker_name: "📺 Series Asiáticas",
+          produccion_id: -1004341160346,
+          inviteLink: "https://t.me/+yU-2lZYNHbJlYzkx",
+          is_forum: true,
+          msgs: 8009
+        },
+        {
+          slug: "series_turcas",
+          name: "✨ Series Turcas y Telenovelas - TeVeFLIPE",
+          category: "series",
+          bunker_id: -1004433726485,
+          bunker_name: "Series Turcas y Telenovelas",
+          produccion_id: -1004415457188,
+          inviteLink: "https://t.me/+tvXNYjhQjokzOWQ5",
+          is_forum: true,
+          msgs: 3976
+        },
+        {
+          slug: "series_retro",
+          name: "📺 Series Retro y Clásicas - TeVeFLIPE",
+          category: "series",
+          bunker_id: -1003971365582,
+          bunker_name: "📺 Series Retro y Clásicas - TeveFlipe",
+          produccion_id: 0,
+          inviteLink: "",
+          is_forum: true
+        }
       ];
 
+      // Fusionar con datos dinámicos de Firebase Realtime Database
+      const channelMap = new Map();
+      masterBunkerChannels.forEach(c => channelMap.set(c.slug, { ...c }));
+
+      if (bunkerStatusMap) {
+        Object.entries(bunkerStatusMap).forEach(([k, v]) => {
+          if (v) {
+            const slug = v.channel_id || k;
+            const existing = channelMap.get(slug) || { slug: slug };
+            channelMap.set(slug, {
+              ...existing,
+              name: v.nombre || existing.name || slug,
+              bunker_id: v.bunker_id || existing.bunker_id || 0,
+              produccion_id: v.produccion_id !== undefined ? v.produccion_id : (existing.produccion_id || 0),
+              inviteLink: v.invite_link || existing.inviteLink || "",
+              category: v.categoria || existing.category || "general",
+              estado: v.estado || existing.estado,
+              is_forum: v.is_forum !== undefined ? v.is_forum : existing.is_forum,
+              msgs: v.ultimo_id_sincronizado || existing.msgs
+            });
+          }
+        });
+      }
+
+      const channelsList = Array.from(channelMap.values());
+      cachedBunkerChannelsList = channelsList;
       let syncedCount = 0;
       let pendingCount = 0;
 
@@ -1941,73 +2182,267 @@
       if (recSelect) {
         const curVal = recSelect.value;
         recSelect.innerHTML = `<option value="">Seleccione un canal...</option>` + channelsList.map(c => 
-          `<option value="${c.id}">${escapeHtml(c.name)} (${c.id})</option>`
+          `<option value="${c.slug}">${escapeHtml(c.name)} (Búnker: ${c.bunker_id})</option>`
         ).join("");
         if (curVal) recSelect.value = curVal;
       }
 
       tbody.innerHTML = channelsList.map(c => {
-        const key = String(c.id);
-        const statusData = bunkerStatusMap[key] || bunkerStatusMap[c.name] || {};
+        const prodId = Number(c.produccion_id || 0);
+        const bunkerId = Number(c.bunker_id || 0);
+        const isBlindado = prodId !== 0 && prodId !== bunkerId;
+        const isCloning = (c.estado || '').toLowerCase() === 'sincronizando';
 
-        const bunkerIdDisplay = statusData.bunker_id ? `<code>${statusData.bunker_id}</code>` : `<span style="color: var(--cyan-accent); font-size: 0.85rem;">🔒 Búnker Oculto</span>`;
-        const prodIdDisplay = `<code>${c.id}</code>`;
-
-        let estadoBadge = `<span class="badge-pill badge-active" style="background: rgba(34, 197, 94, 0.15); color: #4ade80;">🟢 Sincronizado</span>`;
-        const rawStatus = (statusData.estado || 'sincronizado').toLowerCase();
-
-        if (rawStatus === 'sincronizando') {
-          estadoBadge = `<span class="badge-pill badge-pending" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">🟡 Sincronizando...</span>`;
+        let estadoBadge = '';
+        if (isCloning) {
+          estadoBadge = `
+            <span class="badge-pill" style="background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.5); color: #fbbf24; font-weight: 800; font-size: 0.8rem;">
+              🟡 CLONANDO...
+            </span>
+            <div style="font-size: 0.72rem; color: #fbbf24; margin-top: 3px;">Transfiriendo archivos</div>
+          `;
           pendingCount++;
-        } else if (rawStatus === 'error' || c.active === false) {
-          estadoBadge = `<span class="badge-pill badge-blocked" style="background: rgba(239, 68, 68, 0.15); color: #f87171;">🔴 Caído / Error</span>`;
-          pendingCount++;
-        } else {
+        } else if (isBlindado) {
+          estadoBadge = `
+            <span class="badge-pill" style="background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.5); color: #4ade80; font-weight: 800; font-size: 0.82rem;">
+              🛡️ BLINDADO
+            </span>
+            <div style="font-size: 0.72rem; color: #86efac; margin-top: 3px; font-weight: 600;">
+              ${c.msgs ? c.msgs + ' archivos' : '100% Sincronizado'}
+            </div>
+          `;
           syncedCount++;
+        } else {
+          estadoBadge = `
+            <span class="badge-pill" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #f59e0b; font-weight: 800; font-size: 0.82rem;">
+              ⚠️ SIN RESPALDO
+            </span>
+            <div style="font-size: 0.72rem; color: #fca5a5; margin-top: 3px;">Canal único sin clonar</div>
+          `;
+          pendingCount++;
         }
 
-        const bunkerTotal = statusData.total_bunker || 'Detectando';
-        const prodTotal = statusData.total_prod || statusData.ultimo_id_sincronizado || 'Al día';
-        const progressDisplay = `<span style="font-size: 0.88rem;"><strong>${prodTotal}</strong> / ${bunkerTotal} msgs</span>`;
-
-        const linkDisplay = c.inviteLink ? `
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <a href="${c.inviteLink}" target="_blank" style="color: var(--cyan-accent); text-decoration: none; font-size: 0.85rem; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${c.inviteLink}</a>
-            <button type="button" class="btn-sm" style="padding: 2px 6px; font-size: 0.75rem;" onclick="navigator.clipboard.writeText('${c.inviteLink}').then(() => showToast('¡Enlace copiado!'))">📋</button>
+        const bunkerCol = `
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="font-size: 0.7rem; width: fit-content; padding: 2px 7px; background: rgba(124, 77, 255, 0.2); border: 1px solid rgba(124, 77, 255, 0.4); border-radius: 4px; color: #c4b5fd; font-weight: 700;">
+              👑 Cuenta 1 (Maestro)
+            </span>
+            <code style="color: var(--cyan-accent); font-size: 0.88rem; font-weight: 700;">${bunkerId}</code>
           </div>
-        ` : `<span style="color: var(--text-muted); font-size: 0.8rem;">Sin enlace</span>`;
+        `;
+
+        let prodCol = '';
+        if (isBlindado) {
+          prodCol = `
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 0.7rem; padding: 2px 7px; background: rgba(34, 197, 94, 0.18); border: 1px solid rgba(34, 197, 94, 0.35); border-radius: 4px; color: #86efac; font-weight: 700;">
+                  🚀 Cuenta 2 (Producción)
+                </span>
+                <code style="color: white; font-size: 0.85rem; font-weight: 700;">${prodId}</code>
+              </div>
+              ${c.inviteLink ? `
+                <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                  <a href="${c.inviteLink}" target="_blank" style="color: var(--cyan-accent); text-decoration: none; font-size: 0.82rem; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${c.inviteLink}</a>
+                  <button type="button" class="btn-sm" style="padding: 2px 6px; font-size: 0.75rem;" onclick="navigator.clipboard.writeText('${c.inviteLink}').then(() => showToast('¡Enlace copiado!'))">📋</button>
+                </div>
+              ` : ''}
+            </div>
+          `;
+        } else {
+          prodCol = `
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <span style="color: #f59e0b; font-weight: 700; font-size: 0.88rem;">⚠️ Pendiente de clonar</span>
+              <span style="font-size: 0.75rem; color: var(--text-muted);">Solo existe en tu cuenta personal</span>
+            </div>
+          `;
+        }
+
+        let actionCol = '';
+        if (!isBlindado) {
+          actionCol = `
+            <button type="button" class="btn" style="background: linear-gradient(135deg, #00e5ff 0%, #7c4dff 100%); color: black; font-weight: 800; padding: 7px 16px; font-size: 0.82rem; border: none; border-radius: 8px; box-shadow: 0 2px 12px rgba(0, 229, 255, 0.35); cursor: pointer; white-space: nowrap;" onclick="promptCloneChannel('${c.slug}', '${escapeHtml(c.name)}')">
+              🚀 Iniciar Clonación
+            </button>
+          `;
+        } else {
+          const isPublishedInFirebase = allChannels && allChannels.some(x => String(x.id) === String(prodId));
+          const publishBtn = !isPublishedInFirebase ? `
+            <button type="button" class="btn-sm" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; font-weight: 700; border: none; padding: 6px 12px; font-size: 0.78rem; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35); cursor: pointer;" title="Cargar este canal blindado en Canales Oficiales de Firebase para la TV" onclick="publishBlindadoToFirebase('${c.slug}')">
+              📲 Cargar en Firebase
+            </button>
+          ` : `
+            <span style="font-size: 0.75rem; color: #10b981; font-weight: 700; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); padding: 4px 8px; border-radius: 6px;" title="Ya está activo en la base de datos de producción">
+              ✅ En Firebase
+            </span>
+          `;
+
+          actionCol = `
+            <div style="display: inline-flex; gap: 6px; align-items: center;">
+              ${publishBtn}
+              <button type="button" class="btn-sm" style="background: rgba(255,255,255,0.08); padding: 6px 12px; font-size: 0.78rem; font-weight: 600;" title="Sincronizar Mensajes Nuevos" onclick="forceBunkerSync('${c.slug}', '${escapeHtml(c.name)}')">
+                🔄 Sincronizar
+              </button>
+              <button type="button" class="btn-sm" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; padding: 6px 8px; font-size: 0.78rem;" title="Protocolo de Reemplazo si es reportado" onclick="openEmergencyRecoveryModal('${c.slug}')">
+                🚨
+              </button>
+            </div>
+          `;
+        }
+
+        const forumBadge = c.is_forum ? `<span class="badge-pill" style="font-size: 0.65rem; background: rgba(0, 229, 255, 0.15); color: var(--cyan-accent); margin-left: 4px;">TEMAS / FORO</span>` : '';
 
         return `
           <tr>
             <td>
-              <div style="font-weight: 700; color: white;">${escapeHtml(c.name)}</div>
-              <span class="badge-pill badge-cat-${c.category || 'general'}" style="font-size: 0.7rem; margin-top: 4px; display: inline-block;">${(c.category || 'CANAL').toUpperCase()}</span>
-            </td>
-            <td>${bunkerIdDisplay}</td>
-            <td>${prodIdDisplay}</td>
-            <td>${progressDisplay}</td>
-            <td>${estadoBadge}</td>
-            <td>${linkDisplay}</td>
-            <td style="text-align: right;">
-              <div style="display: inline-flex; gap: 6px;">
-                <button type="button" class="btn-sm" title="Forzar Sincronización Inmediata" onclick="forceBunkerSync('${c.id}', '${escapeHtml(c.name)}')">
-                  🔄
-                </button>
-                <button type="button" class="btn-sm" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5;" title="Reemplazar Canal Caído" onclick="openEmergencyRecoveryModal('${c.id}')">
-                  🚨
-                </button>
+              <div style="font-weight: 700; color: white; font-size: 0.95rem;">${escapeHtml(c.name)}</div>
+              <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+                <span class="badge-pill badge-cat-${c.category || 'general'}" style="font-size: 0.68rem;">${(c.category || 'CANAL').toUpperCase()}</span>
+                ${forumBadge}
               </div>
             </td>
+            <td>${bunkerCol}</td>
+            <td>${prodCol}</td>
+            <td>${estadoBadge}</td>
+            <td style="text-align: right;">${actionCol}</td>
           </tr>
         `;
       }).join("");
 
+      // Actualizar tarjeta hero de progreso
+      const totalCount = channelsList.length;
+      const pct = totalCount > 0 ? ((syncedCount / totalCount) * 100).toFixed(1) : 0;
+      const heroSynced = document.getElementById("bunkerHeroSynced");
+      const heroTotal = document.getElementById("bunkerHeroTotal");
+      const heroPercent = document.getElementById("bunkerHeroPercent");
+      const progressBar = document.getElementById("bunkerProgressBar");
+      if (heroSynced) heroSynced.textContent = syncedCount;
+      if (heroTotal) heroTotal.textContent = totalCount;
+      if (heroPercent) heroPercent.textContent = `${pct}%`;
+      if (progressBar) progressBar.style.width = `${pct}%`;
+
+      // Tarjetas de métricas
       const elTotal = document.getElementById("bunkerTotalCount");
       const elSynced = document.getElementById("bunkerSyncedCount");
       const elPending = document.getElementById("bunkerPendingCount");
-      if (elTotal) elTotal.textContent = channelsList.length;
+      if (elTotal) elTotal.textContent = totalCount;
       if (elSynced) elSynced.textContent = syncedCount;
       if (elPending) elPending.textContent = pendingCount;
+    }
+
+    async function publishBlindadoToFirebase(slug) {
+      const c = cachedBunkerChannelsList.find(x => x.slug === slug);
+      if (!c || !c.produccion_id) {
+        showToast("El canal no tiene ID de producción válido", "error");
+        return;
+      }
+      try {
+        const prodKey = String(c.produccion_id);
+        const channelData = {
+          id: Number(c.produccion_id),
+          name: c.name,
+          inviteLink: c.inviteLink,
+          category: c.category || "peliculas",
+          isForum: !!c.is_forum,
+          active: true,
+          updatedAt: Date.now()
+        };
+
+        // 1. Guardar en Realtime Database
+        await database.ref(`channels/${prodKey}`).set(channelData);
+
+        // 2. Si el bunker_id estaba en channels, eliminarlo para proteger el Búnker
+        if (c.bunker_id && Number(c.bunker_id) !== Number(c.produccion_id)) {
+          try {
+            await database.ref(`channels/${c.bunker_id}`).remove();
+          } catch (_) {}
+        }
+
+        // 3. Firestore si está disponible
+        if (firestore) {
+          try {
+            await firestore.collection("channels").doc(prodKey).set(channelData, { merge: true });
+            if (c.bunker_id && Number(c.bunker_id) !== Number(c.produccion_id)) {
+              await firestore.collection("channels").doc(String(c.bunker_id)).delete();
+            }
+          } catch (_) {}
+        }
+
+        showToast(`🎉 ¡Canal "${c.name}" cargado en los Canales Oficiales de Firebase!`, "success");
+        renderBunkerTable();
+      } catch (err) {
+        console.error("Error publicando canal a Firebase:", err);
+        showToast("Error publicando a Firebase: " + err.message, "error");
+      }
+    }
+
+    async function publishAllBlindadosToFirebase() {
+      const blindados = cachedBunkerChannelsList.filter(c => {
+        const prodId = Number(c.produccion_id || 0);
+        const bunkerId = Number(c.bunker_id || 0);
+        return prodId !== 0 && prodId !== bunkerId;
+      });
+
+      if (blindados.length === 0) {
+        showToast("No hay canales blindados para publicar", "warning");
+        return;
+      }
+
+      try {
+        let count = 0;
+        for (const c of blindados) {
+          const prodKey = String(c.produccion_id);
+          const channelData = {
+            id: Number(c.produccion_id),
+            name: c.name,
+            inviteLink: c.inviteLink,
+            category: c.category || "peliculas",
+            isForum: !!c.is_forum,
+            active: true,
+            updatedAt: Date.now()
+          };
+
+          await database.ref(`channels/${prodKey}`).set(channelData);
+
+          if (c.bunker_id && Number(c.bunker_id) !== Number(c.produccion_id)) {
+            try {
+              await database.ref(`channels/${c.bunker_id}`).remove();
+            } catch (_) {}
+          }
+
+          if (firestore) {
+            try {
+              await firestore.collection("channels").doc(prodKey).set(channelData, { merge: true });
+              if (c.bunker_id && Number(c.bunker_id) !== Number(c.produccion_id)) {
+                await firestore.collection("channels").doc(String(c.bunker_id)).delete();
+              }
+            } catch (_) {}
+          }
+          count++;
+        }
+        showToast(`🚀 ¡${count} canales blindados cargados con éxito en los Canales Oficiales de Firebase!`, "success");
+        renderBunkerTable();
+      } catch (err) {
+        console.error("Error publicando canales blindados:", err);
+        showToast("Error publicando: " + err.message, "error");
+      }
+    }
+
+    function promptCloneChannel(slug, name) {
+      const cmd = `python sync_bunker/sync_daemon.py --channel=${slug}`;
+      navigator.clipboard.writeText(cmd).then(() => {
+        showToast(`🚀 Comando para "${name}" copiado al portapapeles:\n${cmd}`, "success");
+      });
+      try {
+        database.ref('config/sync_request').set({
+          channelId: slug,
+          channelName: name,
+          requestedAt: Date.now(),
+          mode: 'full',
+          status: 'pending',
+          requestedBy: currentUser ? currentUser.email : 'admin'
+        });
+      } catch (_) {}
     }
 
     async function requestBunkerGlobalSync() {
@@ -2090,6 +2525,62 @@
       } catch (err) {
         showToast("Comando listo: " + cmd, "success");
         closeEmergencyRecoveryModal();
+      }
+    }
+
+    function openAddBunkerChannelModal() {
+      const modal = document.getElementById("addBunkerChannelModal");
+      if (modal) modal.style.display = "flex";
+    }
+
+    function closeAddBunkerChannelModal() {
+      const modal = document.getElementById("addBunkerChannelModal");
+      if (modal) modal.style.display = "none";
+    }
+
+    async function saveNewBunkerChannel(e) {
+      e.preventDefault();
+      const slug = document.getElementById("newBunkerSlug").value.trim();
+      const prodName = document.getElementById("newBunkerProdName").value.trim();
+      const bunkerIdStr = document.getElementById("newBunkerId").value.trim();
+      const bunkerName = document.getElementById("newBunkerName").value.trim() || prodName;
+      const category = document.getElementById("newBunkerCategory").value;
+      const isForum = document.getElementById("newBunkerIsForum").checked;
+
+      const bunkerId = parseInt(bunkerIdStr, 10);
+      if (isNaN(bunkerId) || !slug) {
+        showToast("Por favor ingresa un Slug e ID de Búnker válidos", "error");
+        return;
+      }
+
+      const channelData = {
+        channel_id: slug,
+        nombre: prodName,
+        bunker_id: bunkerId,
+        bunker_nombre: bunkerName,
+        produccion_id: 0,
+        invite_link: "",
+        categoria: category,
+        is_forum: isForum,
+        estado: "pendiente_clonar",
+        total_bunker: "Pendiente",
+        ultimo_id_sincronizado: 0,
+        registrado_en: new Date().toISOString()
+      };
+
+      try {
+        await database.ref(`backup_status/${slug}`).set(channelData);
+        if (firestore) {
+          try {
+            await firestore.collection("backup_status").doc(slug).set(channelData, { merge: true });
+          } catch (_) {}
+        }
+        showToast(`Canal "${prodName}" registrado en el Búnker con éxito`, "success");
+        closeAddBunkerChannelModal();
+        document.getElementById("addBunkerChannelForm").reset();
+      } catch (err) {
+        console.error("Error registrando canal en búnker:", err);
+        showToast("Error guardando: " + err.message, "error");
       }
     }
 
