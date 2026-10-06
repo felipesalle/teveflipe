@@ -460,6 +460,8 @@
     .badge-cat-kids { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); }
     .badge-cat-clasicos { background: rgba(236, 72, 153, 0.18); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.35); }
     .badge-cat-anime { background: rgba(239, 68, 68, 0.2); color: #ff5252; border: 1px solid rgba(239, 68, 68, 0.45); }
+    .badge-cat-documentales { background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); }
+    .badge-cat-musica { background: rgba(236, 72, 153, 0.18); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.35); }
     .badge-cat-general { background: rgba(255, 255, 255, 0.1); color: #e2e2ee; border: 1px solid rgba(255, 255, 255, 0.2); }
 
     .badge-active { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.35); }
@@ -851,11 +853,8 @@
             <span id="channelFormTitleText">Añadir Nuevo Canal Oficial / Comunitario</span>
           </h3>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button type="button" class="btn-sm" style="background: linear-gradient(135deg, #00e5ff, #7c4dff); color: white; border: none; font-size: 0.85rem;" onclick="seedSeriesThematicChannels()">
-              ⚡ Cargar 4 Supergrupos de Series
-            </button>
-            <button type="button" class="btn-sm" style="background: linear-gradient(135deg, #7c4dff, #ff5252); color: white; border: none; font-size: 0.85rem;" onclick="seedNewOfficialChannels()">
-              ⚡ Cargar Anime & Infantil
+            <button type="button" class="btn-sm" style="background: linear-gradient(135deg, #00e5ff, #7c4dff); color: white; border: none; font-size: 0.85rem;" onclick="seedNewOfficialChannels()">
+              ⚡ Sincronizar los 14 Canales Oficiales
             </button>
           </div>
         </div>
@@ -884,6 +883,8 @@
                 <option value="kids">👶 Kids / Infantil</option>
                 <option value="anime">🎌 Anime (Series y Películas)</option>
                 <option value="clasicos">🏛️ Clásicos</option>
+                <option value="documentales">🌍 Documentales</option>
+                <option value="musica">🎸 Conciertos & Música</option>
                 <option value="general">🌐 General</option>
               </select>
             </div>
@@ -1786,14 +1787,19 @@
     async function seedNewOfficialChannels() {
       const defaultChannels = [
         { id: -1003763464899, name: "🎬 Películas Estrenos - TeVeFLIPE", inviteLink: "https://t.me/+VpmsvyK63OplZGIx", isForum: false, category: "peliculas", active: true },
-        { id: -1002097175258, name: "SERIES TV", inviteLink: "https://t.me/+9jxzu1QTtmFjYjRj", isForum: true, category: "series", active: true },
-        { id: -1004419790119, name: "Series Españolas", inviteLink: "https://t.me/+69qsybL6zbplZDRj", isForum: true, category: "series", active: true },
+        { id: -1004331019870, name: "📺 Series TV - TeVeFLIPE", inviteLink: "https://t.me/+HaVzd5DeADAxMGE5", isForum: true, category: "series", active: true },
+        { id: -1004419790119, name: "🇪🇸 Series Españolas - TeVeFLIPE", inviteLink: "https://t.me/+69qsybL6zbplZDRj", isForum: true, category: "series", active: true },
         { id: -1003886841797, name: "🎞️ Películas Clásicas - TeVeFLIPE", inviteLink: "https://t.me/+odH9vFdVUtMzOWNh", isForum: false, category: "clasicos", active: true },
         { id: -1004467288762, name: "📼 Cine de los 80 y 90 - TeVeFLIPE", inviteLink: "https://t.me/+qNjPZZ7F5hFmYmRh", isForum: false, category: "peliculas", active: true },
         { id: -1004326583216, name: "🎬 Películas Infantiles - TeVeFLIPE", inviteLink: "https://t.me/+FTpg2qBHORMwNTNh", isForum: false, category: "kids", active: true },
-        { id: -1004385066808, name: "Series Infantiles", inviteLink: "https://t.me/+zzFmAUwKqw45MDcz", isForum: true, category: "kids", active: true },
+        { id: -1004343712699, name: "👶 Series Infantiles - TeVeFLIPE", inviteLink: "https://t.me/+J15eKBk0lHBhZmQx", isForum: true, category: "kids", active: true },
         { id: -1004300040143, name: "⛩️ Películas Anime - TeVeFLIPE", inviteLink: "https://t.me/+m7sa99fLDM1hODFh", isForum: false, category: "anime", active: true },
-        { id: -1004445501873, name: "📺 Series Anime", inviteLink: "https://t.me/+-Co-U4T6sMM2MWMz", isForum: true, category: "anime", active: true }
+        { id: -1004445508015, name: "💥 Series Anime - TeVeFLIPE", inviteLink: "https://t.me/+6Ovdscxg-Cg1MGYx", isForum: true, category: "anime", active: true },
+        { id: -1004341160346, name: "🥢 Series Asiáticas & Doramas - TeVeFLIPE", inviteLink: "https://t.me/+yU-2lZYNHbJlYzkx", isForum: true, category: "series", active: true },
+        { id: -1004415457188, name: "✨ Series Turcas y Telenovelas - TeVeFLIPE", inviteLink: "https://t.me/+tvXNYjhQjokzOWQ5", isForum: true, category: "series", active: true },
+        { id: -1003865750796, name: "📺 Series Retro y Clásicas - TeVeFLIPE", inviteLink: "https://t.me/+Jb3mNj8JybczYzcx", isForum: true, category: "series", active: true },
+        { id: -1004390222354, name: "🌍 Documentales - TeVeFLIPE", inviteLink: "https://t.me/+m55509Q2gDZkNjMx", isForum: false, category: "documentales", active: true },
+        { id: -1004296746003, name: "🎸 Conciertos & Música - TeVeFLIPE", inviteLink: "https://t.me/+ip5U3FLPTm8zY2Yx", isForum: false, category: "musica", active: true }
       ];
 
       try {
@@ -1806,7 +1812,7 @@
             } catch (_) {}
           }
         }
-        showToast("¡Canales oficiales y de Anime / Infantil sincronizados con éxito!", "success");
+        showToast("¡Los 14 Canales Oficiales han sido sincronizados en Firebase!", "success");
       } catch (err) {
         console.error("Error al sincronizar canales:", err);
         showToast("Error al sincronizar canales: " + err.message, "error");
@@ -2047,7 +2053,7 @@
           produccion_id: -1003763464899,
           inviteLink: "https://t.me/+VpmsvyK63OplZGIx",
           is_forum: false,
-          msgs: 1882
+          msgs: 1898
         },
         {
           slug: "series_tv",
@@ -2055,9 +2061,10 @@
           category: "series",
           bunker_id: -1002097175258,
           bunker_name: "SERIES TV",
-          produccion_id: 0,
-          inviteLink: "",
-          is_forum: true
+          produccion_id: -1004331019870,
+          inviteLink: "https://t.me/+HaVzd5DeADAxMGE5",
+          is_forum: true,
+          msgs: 123
         },
         {
           slug: "series_espanolas",
@@ -2108,9 +2115,10 @@
           category: "kids",
           bunker_id: -1004385066808,
           bunker_name: "Series Infantiles",
-          produccion_id: 0,
-          inviteLink: "",
-          is_forum: true
+          produccion_id: -1004343712699,
+          inviteLink: "https://t.me/+J15eKBk0lHBhZmQx",
+          is_forum: true,
+          msgs: 229
         },
         {
           slug: "peliculas_anime",
@@ -2162,9 +2170,32 @@
           category: "series",
           bunker_id: -1003971365582,
           bunker_name: "📺 Series Retro y Clásicas - TeveFlipe",
-          produccion_id: 0,
-          inviteLink: "",
-          is_forum: true
+          produccion_id: -1003865750796,
+          inviteLink: "https://t.me/+Jb3mNj8JybczYzcx",
+          is_forum: true,
+          msgs: 186
+        },
+        {
+          slug: "documentales",
+          name: "🌍 Documentales - TeVeFLIPE",
+          category: "documentales",
+          bunker_id: -1001905652210,
+          bunker_name: "Comunidad Castellana (Solo Documentales)",
+          produccion_id: -1004390222354,
+          inviteLink: "https://t.me/+m55509Q2gDZkNjMx",
+          is_forum: false,
+          msgs: 40
+        },
+        {
+          slug: "conciertos",
+          name: "🎸 Conciertos & Música - TeVeFLIPE",
+          category: "musica",
+          bunker_id: -1003567099600,
+          bunker_name: "Música Comunidad Castellana",
+          produccion_id: -1004296746003,
+          inviteLink: "https://t.me/+ip5U3FLPTm8zY2Yx",
+          is_forum: false,
+          msgs: 349
         }
       ];
 
