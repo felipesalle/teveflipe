@@ -1,0 +1,27 @@
+{
+  "rules": {
+    "global_announcements": {
+      ".read": true,
+      ".write": "auth != null && auth.token.email === 'flipeloflipa@gmail.com'"
+    },
+    "channels": {
+      ".read": true,
+      ".write": "auth != null && auth.token.email === 'flipeloflipa@gmail.com'"
+    },
+    "backup_status": {
+      ".read": "auth != null && auth.token.email === 'flipeloflipa@gmail.com'",
+      ".write": "auth != null && auth.token.email === 'flipeloflipa@gmail.com'"
+    },
+    "config": {
+      ".read": "auth != null && auth.token.email === 'flipeloflipa@gmail.com'",
+      ".write": "auth != null && auth.token.email === 'flipeloflipa@gmail.com'"
+    },
+    "users": {
+      ".read": "auth != null && auth.token.email === 'flipeloflipa@gmail.com'",
+      "$uid": {
+        ".read": true,
+        ".write": true
+      }
+    }
+  }
+}
