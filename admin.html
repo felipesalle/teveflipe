@@ -872,6 +872,10 @@
               <input type="text" id="chId" class="form-control" placeholder="Ej: -1004388643765" required>
             </div>
             <div class="form-group">
+              <label for="chBunker">ID de Telegram Búnker Origen (Opcional - Para auto-sincronizar)</label>
+              <input type="text" id="chBunker" class="form-control" placeholder="Ej: -1002146236969">
+            </div>
+            <div class="form-group">
               <label for="chInvite">Enlace de Invitación Permanente *</label>
               <input type="url" id="chInvite" class="form-control" placeholder="https://t.me/+..." required>
             </div>
@@ -1649,7 +1653,10 @@
             <td>
               <strong style="color: white; font-size: 0.95rem;">${escapeHtml(c.name)}</strong>
             </td>
-            <td style="font-family: monospace; color: #c4b5fd;">${c.id}</td>
+            <td style="font-family: monospace; color: #c4b5fd;">
+              ${c.id}
+              ${c.bunker_id ? `<br><small style="color: #67e8f9; font-size: 0.75rem;">🛡️ Búnker: ${c.bunker_id}</small>` : ''}
+            </td>
             <td>${catBadge}</td>
             <td>
               <a href="${escapeHtml(c.inviteLink)}" target="_blank" rel="noopener noreferrer" style="color: var(--cyan-accent); text-decoration: none; word-break: break-all; font-size: 0.85rem;">
@@ -1675,6 +1682,7 @@
       const docKey = document.getElementById("channelDocKey").value.trim();
       const name = document.getElementById("chName").value.trim();
       const idStr = document.getElementById("chId").value.trim();
+      const bunkerStr = document.getElementById("chBunker").value.trim();
       const inviteLink = document.getElementById("chInvite").value.trim();
       const category = document.getElementById("chCategory").value;
       const isForum = document.getElementById("chIsForum").checked;
@@ -1684,6 +1692,7 @@
         alert("El ID de Telegram debe ser numérico (ej: -1004388643765)");
         return;
       }
+      const numBunkerId = bunkerStr ? (Number(bunkerStr) || null) : null;
 
       const channelData = {
         id: numId,
@@ -1691,6 +1700,7 @@
         inviteLink: inviteLink,
         category: category,
         isForum: isForum,
+        bunker_id: numBunkerId,
         active: true,
         updatedAt: Date.now()
       };
@@ -1724,6 +1734,7 @@
       document.getElementById("channelDocKey").value = c._key;
       document.getElementById("chName").value = c.name;
       document.getElementById("chId").value = c.id;
+      document.getElementById("chBunker").value = c.bunker_id || "";
       document.getElementById("chInvite").value = c.inviteLink;
       document.getElementById("chCategory").value = c.category || "general";
       document.getElementById("chIsForum").checked = !!c.isForum;
@@ -1740,6 +1751,7 @@
       document.getElementById("channelDocKey").value = "";
       document.getElementById("chName").value = "";
       document.getElementById("chId").value = "";
+      document.getElementById("chBunker").value = "";
       document.getElementById("chInvite").value = "";
       document.getElementById("chCategory").value = "peliculas";
       document.getElementById("chIsForum").checked = false;
